@@ -6,7 +6,7 @@ import Modal from '../components/UI/Modal';
 import { useAuth } from '../contexts/AuthContext';
 import { userService } from '../services/userService';
 import { useToast } from '../contexts/ToastContext';
-import { User, Mail, Phone, Calendar, Shield, Plus } from 'lucide-react';
+import { User, Mail, Phone, Calendar, Shield, Plus, UserCheck } from 'lucide-react';
 
 function Profile() {
   const [profile, setProfile] = useState(null);
@@ -136,10 +136,10 @@ function Profile() {
                   </div>
                   
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900">{profile.name}</h2>
-                    <p className="text-gray-600">{profile.role || 'User'} • {profile.department || 'General'}</p>
+                    <h2 className="text-2xl font-bold text-gray-900">{profile.name || profile.username}</h2>
+                    <p className="text-gray-600">@{profile.username} • User</p>
                     <p className="text-sm text-gray-500">
-                      Member since {new Date(profile.joinDate || profile.createdAt || Date.now()).toLocaleDateString('en-US', { 
+                      Member since {new Date(profile.createdAt).toLocaleDateString('en-US', { 
                         month: 'long', 
                         year: 'numeric' 
                       })}
@@ -152,28 +152,32 @@ function Profile() {
                   <InfoCard
                     icon={Mail}
                     label="Email Address"
-                    value={profile.email || 'Not provided'}
+                    value={profile.email}
                     bgColor="bg-blue-50"
                   />
                   
                   <InfoCard
-                    icon={Phone}
-                    label="Mobile Number"
-                    value={profile.mobile || 'Not provided'}
+                    icon={UserCheck}
+                    label="Username"
+                    value={profile.username}
                     bgColor="bg-green-50"
                   />
                   
                   <InfoCard
                     icon={Shield}
-                    label="Role"
-                    value={profile.role || 'User'}
+                    label="Account Type"
+                    value="User"
                     bgColor="bg-purple-50"
                   />
                   
                   <InfoCard
                     icon={Calendar}
-                    label="Join Date"
-                    value={new Date(profile.joinDate || profile.createdAt || Date.now()).toLocaleDateString()}
+                    label="Account Created"
+                    value={new Date(profile.createdAt).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
                     bgColor="bg-yellow-50"
                   />
                 </div>

@@ -49,7 +49,7 @@ function Header({ onToggleSidebar }) {
           
           <div className="flex items-center space-x-3">
             <span className="hidden sm:inline text-sm font-medium text-gray-700">
-              {user?.name}
+              {user?.name || user?.username}
             </span>
             
             <img

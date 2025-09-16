@@ -50,12 +50,19 @@ export function AuthProvider({ children }) {
       // Get user details using the token
       const userData = await authService.getUserProfile(loginResponse.token);
       
-      setUser(userData);
+      // Store user data with proper fallbacks
+      const userProfile = {
+        ...userData,
+        displayName: userData.name || userData.username,
+        joinDate: userData.createdAt
+      };
+      
+      setUser(userProfile);
       setIsAuthenticated(true);
       
       return {
         token: loginResponse.token,
-        user: userData,
+        user: userProfile,
         message: loginResponse.message
       };
     } catch (error) {
