@@ -5,7 +5,7 @@ import Input from '../components/UI/Input';
 import Button from '../components/UI/Button';
 
 function Login() {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -14,7 +14,7 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!email || !password) {
+    if (!username || !password) {
       showError('Please fill in all fields');
       return;
     }
@@ -22,9 +22,9 @@ function Login() {
     setLoading(true);
     
     try {
-      await login(email, password);
+      await login(username, password);
     } catch (err) {
-      showError('Invalid email or password');
+      showError(err.message || 'Invalid username or password');
     } finally {
       setLoading(false);
     }
@@ -46,13 +46,13 @@ function Login() {
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             <Input
-              label="Email Address"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
+              label="Username"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Enter your username"
               required
-              autoComplete="email"
+              autoComplete="username"
             />
 
             <Input
@@ -87,7 +87,7 @@ function Login() {
           
           <div className="mt-8 pt-6 border-t border-gray-200 text-center">
             <p className="text-xs text-gray-500">
-              Secure banking platform • Protected by enterprise security
+              Secure banking platform • Use username: "ww" and password: "1234" for demo
             </p>
           </div>
         </div>
