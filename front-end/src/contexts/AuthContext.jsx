@@ -22,7 +22,7 @@ export function AuthProvider({ children }) {
       try {
         const token = localStorage.getItem('authToken');
         if (token) {
-          // Validate token with backend (stub)
+          // Validate token and get user details from backend
           const userData = await authService.validateToken(token);
           setUser(userData);
           setIsAuthenticated(true);
@@ -30,6 +30,8 @@ export function AuthProvider({ children }) {
       } catch (error) {
         console.error('Auth validation failed:', error);
         localStorage.removeItem('authToken');
+        setUser(null);
+        setIsAuthenticated(false);
       } finally {
         setLoading(false);
       }
@@ -38,14 +40,29 @@ export function AuthProvider({ children }) {
     checkAuth();
   }, []);
 
-  const login = async (email, password) => {
+  const login = async (username, password) => {
     try {
-      const response = await authService.login(email, password);
-      localStorage.setItem('authToken', response.token);
-      setUser(response.user);
+      const loginResponse = await authService.login(username, password);
+      
+      // Store token in localStorage
+      localStorage.setItem('authToken', loginResponse.token);
+      
+      // Get user details using the token
+      const userData = await authService.getUserProfile(loginResponse.token);
+      
+      setUser(userData);
       setIsAuthenticated(true);
-      return response;
+      
+      return {
+        token: loginResponse.token,
+        user: userData,
+        message: loginResponse.message
+      };
     } catch (error) {
+      // Clear any stored token on login failure
+      localStorage.removeItem('authToken');
+      setUser(null);
+      setIsAuthenticated(false);
       throw error;
     }
   };

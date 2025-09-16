@@ -53,7 +53,7 @@ function Header({ onToggleSidebar }) {
             </span>
             
             <img
-              src={user?.profileImage}
+              src={user?.profileImage || 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150'}
               alt="Profile"
               className="w-8 h-8 rounded-full object-cover"
             />

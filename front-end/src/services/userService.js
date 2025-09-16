@@ -1,5 +1,5 @@
 // User Service - API Stubs
-// TODO: Replace with actual API endpoints
+const API_BASE_URL = 'http://localhost:8080/api/v1';
 
 export const userService = {
   // POST /api/users
@@ -20,25 +20,28 @@ export const userService = {
     };
   },
 
-  // GET /api/users/profile
+  // GET /api/v1/user/profile
   async getUserProfile() {
-    // TODO: Replace with actual API call
-    console.log('API Stub - Get user profile');
+    try {
+      const token = localStorage.getItem('authToken');
+      
+      const response = await fetch(`${API_BASE_URL}/user/profile`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
     
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    return {
-      success: true,
-      user: {
-        id: '1',
-        name: 'John Doe',
-        email: 'john.doe@bank.com',
-        mobile: '+1234567890',
-        profileImage: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150',
-        role: 'Admin',
-        department: 'Risk Management',
-        joinDate: '2023-01-15'
+      if (!response.ok) {
+        throw new Error('Failed to fetch user profile');
       }
-    };
+    
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Get user profile error:', error);
+      throw error;
+    }
   }
 };

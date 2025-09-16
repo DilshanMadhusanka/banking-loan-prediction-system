@@ -23,18 +23,40 @@ export const authService = {
 
       const data = await response.json();
       
+      if (data.error) {
+        throw new Error(data.message || 'Login failed');
+      }
+      
       return {
-        token: data.token || data.accessToken,
-        user: {
-          id: data.user?.id || data.id,
-          name: data.user?.name || data.name || username,
-          email: data.user?.email || data.email,
-          mobile: data.user?.mobile || data.mobile,
-          profileImage: data.user?.profileImage || 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150'
-        }
+        token: data.token,
+        message: data.message,
+        time: data.time
       };
     } catch (error) {
       console.error('Login error:', error);
+      throw error;
+    }
+  },
+
+  // GET /api/v1/user/profile or similar endpoint to get user details using token
+  async getUserProfile(token) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/user/profile`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch user profile');
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Get user profile error:', error);
       throw error;
     }
   },
@@ -60,30 +82,12 @@ export const authService = {
     }
   },
 
-  // GET /api/v1/auth/validate-token or similar endpoint
+  // Validate token and get user details
   async validateToken(token) {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/validate`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Token validation failed');
-      }
-
-      const data = await response.json();
-      
-      return {
-        id: data.user?.id || data.id,
-        name: data.user?.name || data.name,
-        email: data.user?.email || data.email,
-        mobile: data.user?.mobile || data.mobile,
-        profileImage: data.user?.profileImage || 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150'
-      };
+      // Use the same endpoint to get user profile which validates the token
+      const userData = await this.getUserProfile(token);
+      return userData;
     } catch (error) {
       console.error('Token validation error:', error);
       throw error;

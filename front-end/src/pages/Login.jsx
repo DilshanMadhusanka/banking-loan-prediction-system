@@ -87,7 +87,7 @@ function Login() {
           
           <div className="mt-8 pt-6 border-t border-gray-200 text-center">
             <p className="text-xs text-gray-500">
-              Secure banking platform • Use username: "ww" and password: "1234" for demo
+              Secure banking platform • Demo: username "ww", password "1234"
             </p>
           </div>
         </div>

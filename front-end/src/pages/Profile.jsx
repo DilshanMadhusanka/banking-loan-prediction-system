@@ -30,8 +30,8 @@ function Profile() {
 
   const loadProfile = async () => {
     try {
-      const result = await userService.getUserProfile();
-      setProfile(result.user);
+      const userData = await userService.getUserProfile();
+      setProfile(userData);
     } catch (err) {
       error('Failed to load profile data');
     } finally {
@@ -128,7 +128,7 @@ function Profile() {
                 <div className="flex items-center space-x-6">
                   <div className="relative">
                     <img
-                      src={profile.profileImage}
+                      src={profile.profileImage || 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150'}
                       alt="Profile"
                       className="w-24 h-24 rounded-full object-cover shadow-bank"
                     />
@@ -137,9 +137,9 @@ function Profile() {
                   
                   <div>
                     <h2 className="text-2xl font-bold text-gray-900">{profile.name}</h2>
-                    <p className="text-gray-600">{profile.role} • {profile.department}</p>
+                    <p className="text-gray-600">{profile.role || 'User'} • {profile.department || 'General'}</p>
                     <p className="text-sm text-gray-500">
-                      Member since {new Date(profile.joinDate).toLocaleDateString('en-US', { 
+                      Member since {new Date(profile.joinDate || profile.createdAt || Date.now()).toLocaleDateString('en-US', { 
                         month: 'long', 
                         year: 'numeric' 
                       })}
@@ -152,28 +152,28 @@ function Profile() {
                   <InfoCard
                     icon={Mail}
                     label="Email Address"
-                    value={profile.email}
+                    value={profile.email || 'Not provided'}
                     bgColor="bg-blue-50"
                   />
                   
                   <InfoCard
                     icon={Phone}
                     label="Mobile Number"
-                    value={profile.mobile}
+                    value={profile.mobile || 'Not provided'}
                     bgColor="bg-green-50"
                   />
                   
                   <InfoCard
                     icon={Shield}
                     label="Role"
-                    value={profile.role}
+                    value={profile.role || 'User'}
                     bgColor="bg-purple-50"
                   />
                   
                   <InfoCard
                     icon={Calendar}
                     label="Join Date"
-                    value={new Date(profile.joinDate).toLocaleDateString()}
+                    value={new Date(profile.joinDate || profile.createdAt || Date.now()).toLocaleDateString()}
                     bgColor="bg-yellow-50"
                   />
                 </div>
