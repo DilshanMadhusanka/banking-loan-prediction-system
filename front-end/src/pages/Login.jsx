@@ -3,28 +3,35 @@ import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import Input from '../components/UI/Input';
 import Button from '../components/UI/Button';
+import { useNavigate } from 'react-router-dom'; // For redirect after login
 
 function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+
   const { login } = useAuth();
-  const { error: showError } = useToast();
+  const toast = useToast(); // Get toast object
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!username || !password) {
-      showError('Please fill in all fields');
+      toast?.error?.('Please fill in all fields');
       return;
     }
 
     setLoading(true);
-    
+
     try {
       await login(username, password);
+     // toast?.success?.('Logged in successfully!');
+       if (toast?.success) toast.success('Logged in successfully!');
+      navigate('/'); // Redirect to home/dashboard after login
     } catch (err) {
-      showError(err.message || 'Invalid username or password');
+      if (toast?.error) toast.error('Log in failed');
+      //toast?.error?.(err.message || 'Invalid username or password');
     } finally {
       setLoading(false);
     }

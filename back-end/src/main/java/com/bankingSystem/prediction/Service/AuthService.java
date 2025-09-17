@@ -94,4 +94,10 @@ public class AuthService {
     private Boolean isUserEnable(String username){
         return userRepository.findByUsername(username).isPresent();
     }
+
+    // log-out function
+    public String logout() {
+        // For JWT, just instruct client to delete token
+        return "Logged out successfully! ";
+    }
 }

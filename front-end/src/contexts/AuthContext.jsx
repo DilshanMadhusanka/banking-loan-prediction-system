@@ -17,19 +17,16 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing session on app start
+    // ✅ Check if user session exists (cookie is sent automatically)
     const checkAuth = async () => {
       try {
-        const token = localStorage.getItem('authToken');
-        if (token) {
-          // Validate token with backend (stub)
-          const userData = await authService.validateToken(token);
-          setUser(userData);
-          setIsAuthenticated(true);
-        }
+        const userData = await authService.getProfile();
+        setUser(userData);
+        setIsAuthenticated(true);
       } catch (error) {
-        console.error('Auth validation failed:', error);
-        localStorage.removeItem('authToken');
+        console.warn('No active session found:', error.message);
+        setIsAuthenticated(false);
+        setUser(null);
       } finally {
         setLoading(false);
       }
@@ -38,10 +35,9 @@ export function AuthProvider({ children }) {
     checkAuth();
   }, []);
 
-  const login = async (email, password) => {
+  const login = async (username, password) => {
     try {
-      const response = await authService.login(email, password);
-      localStorage.setItem('authToken', response.token);
+      const response = await authService.login(username, password);
       setUser(response.user);
       setIsAuthenticated(true);
       return response;
@@ -53,7 +49,6 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     try {
       await authService.logout();
-      localStorage.removeItem('authToken');
       setUser(null);
       setIsAuthenticated(false);
     } catch (error) {

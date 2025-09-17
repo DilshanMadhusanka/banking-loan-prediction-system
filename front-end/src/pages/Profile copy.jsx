@@ -18,11 +18,12 @@ function Profile() {
   const { success, error } = useToast();
   const navigate = useNavigate();
 
- const [newUserData, setNewUserData] = useState({
+  const [newUserData, setNewUserData] = useState({
     name: '',
-    username: '',
     email: '',
-    password: ''
+    password: '',
+    mobile: '',
+    role: 'User'
   });
 
   useEffect(() => {
@@ -44,7 +45,7 @@ function Profile() {
     e.preventDefault();
     
     // Basic validation
-    if (!newUserData.name ||!newUserData.username || !newUserData.email || !newUserData.password  ) {
+    if (!newUserData.name || !newUserData.email || !newUserData.password) {
       error('Please fill in all required fields');
       return;
     }
@@ -68,7 +69,7 @@ function Profile() {
       await userService.createUser(newUserData);
       success('User created successfully!');
       setShowAddUserModal(false);
-      setNewUserData({ name: '', username: '', email: '', password: '' });
+      setNewUserData({ name: '', email: '', password: '', mobile: '', role: 'User' });
     } catch (err) {
       error('Failed to create user. Please try again.');
     } finally {
@@ -237,68 +238,82 @@ function Profile() {
 
       {/* Add New User Modal */}
       <Modal
-  isOpen={showAddUserModal}
-  onClose={() => setShowAddUserModal(false)}
-  title="Add New User"
-  size="md"
->
-  <form onSubmit={handleAddUser} className="space-y-4">
-    <Input
-      label="Full Name"
-      value={newUserData.name}
-      onChange={(e) => setNewUserData(prev => ({ ...prev, name: e.target.value }))}
-      placeholder="Enter full name"
-      required
-    />
-
-    <Input
-      label="Username"
-      value={newUserData.username}
-      onChange={(e) => setNewUserData(prev => ({ ...prev, username: e.target.value }))}
-      placeholder="Enter username"
-      required
-    />
-    
-    <Input
-      label="Email Address"
-      type="email"
-      value={newUserData.email}
-      onChange={(e) => setNewUserData(prev => ({ ...prev, email: e.target.value }))}
-      placeholder="Enter email address"
-      required
-    />
-    
-    <Input
-      label="Password"
-      type="password"
-      value={newUserData.password}
-      onChange={(e) => setNewUserData(prev => ({ ...prev, password: e.target.value }))}
-      placeholder="Enter password (minimum 6 characters)"
-      required
-    />
-
-    <div className="flex pt-4 space-x-3">
-      <Button
-        type="submit"
-        loading={addingUser}
-        disabled={addingUser}
-        className="flex-1"
-        onClick={handleAddUser}
+        isOpen={showAddUserModal}
+        onClose={() => setShowAddUserModal(false)}
+        title="Add New User"
+        size="md"
       >
-        Create User
-      </Button>
-      <Button
-        type="button"
-        variant="secondary"
-        onClick={() => setShowAddUserModal(false)}
-        disabled={addingUser}
-      >
-        Cancel
-      </Button>
-    </div>
-  </form>
-</Modal>
+        <form onSubmit={handleAddUser} className="space-y-4">
+          <Input
+            label="Full Name"
+            value={newUserData.name}
+            onChange={(e) => setNewUserData(prev => ({ ...prev, name: e.target.value }))}
+            placeholder="Enter full name"
+            required
+          />
+          
+          <Input
+            label="Email Address"
+            type="email"
+            value={newUserData.email}
+            onChange={(e) => setNewUserData(prev => ({ ...prev, email: e.target.value }))}
+            placeholder="Enter email address"
+            required
+          />
+          
+          <Input
+            label="Password"
+            type="password"
+            value={newUserData.password}
+            onChange={(e) => setNewUserData(prev => ({ ...prev, password: e.target.value }))}
+            placeholder="Enter password (minimum 6 characters)"
+            required
+          />
+          
+          <Input
+            label="Mobile Number"
+            type="tel"
+            value={newUserData.mobile}
+            onChange={(e) => setNewUserData(prev => ({ ...prev, mobile: e.target.value }))}
+            placeholder="Enter mobile number"
+          />
 
+          <div className="mb-4">
+            <label className="block mb-2 text-sm font-medium text-gray-700">
+              Role
+            </label>
+            <select
+              value={newUserData.role}
+              onChange={(e) => setNewUserData(prev => ({ ...prev, role: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent"
+            >
+              <option value="User">User</option>
+              <option value="Admin">Admin</option>
+              <option value="Analyst">Analyst</option>
+              <option value="Manager">Manager</option>
+            </select>
+          </div>
+
+          <div className="flex pt-4 space-x-3">
+            <Button
+              type="submit"
+              loading={addingUser}
+              disabled={addingUser}
+              className="flex-1"
+            >
+              Create User
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setShowAddUserModal(false)}
+              disabled={addingUser}
+            >
+              Cancel
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }
