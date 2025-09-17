@@ -15,6 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/auth")
+@CrossOrigin
 public class AuthController {
 
     // get the service

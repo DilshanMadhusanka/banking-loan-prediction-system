@@ -1,60 +1,92 @@
-// Authentication Service - API Stubs
-// TODO: Replace with actual API endpoints
-
-//const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3000/api';
+// Authentication Service - Backend Integration
+const API_BASE_URL = 'http://localhost:8080/api/v1';
 
 export const authService = {
-  // POST /api/auth/login
-  async login(email, password) {
-    // TODO: Replace with actual API call
-    console.log('API Stub - Login attempt:', { email, password });
-    
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Simulate successful login
-    if (email && password) {
+  // POST /api/v1/auth/login
+  async login(username, password) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username,
+          password
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Login failed');
+      }
+
+      const data = await response.json();
+      
       return {
-        token: 'mock-jwt-token-' + Date.now(),
+        token: data.token || data.accessToken,
         user: {
-          id: '1',
-          name: 'John Doe',
-          email: email,
-          mobile: '+1234567890',
-          profileImage: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150'
+          id: data.user?.id || data.id,
+          name: data.user?.name || data.name || username,
+          email: data.user?.email || data.email,
+          mobile: data.user?.mobile || data.mobile,
+          profileImage: data.user?.profileImage || 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150'
         }
       };
-    } else {
-      throw new Error('Invalid credentials');
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
     }
   },
 
-  // POST /api/auth/logout
+  // POST /api/v1/auth/logout
   async logout() {
-    // TODO: Replace with actual API call
-    console.log('API Stub - Logout');
-    
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    return { success: true };
+    try {
+      const token = localStorage.getItem('authToken');
+      
+      const response = await fetch(`${API_BASE_URL}/auth/logout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      // Even if logout fails on backend, we'll clear local storage
+      return { success: true };
+    } catch (error) {
+      console.error('Logout error:', error);
+      return { success: true }; // Still return success to clear local state
+    }
   },
 
-  // GET /api/auth/validate-token
+  // GET /api/v1/auth/validate-token or similar endpoint
   async validateToken(token) {
-    // TODO: Replace with actual API call
-    console.log('API Stub - Validate token:', token);
-    
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
-    // Mock user data
-    return {
-      id: '1',
-      name: 'John Doe',
-      email: 'john.doe@bank.com',
-      mobile: '+1234567890',
-      profileImage: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150'
-    };
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/validate`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Token validation failed');
+      }
+
+      const data = await response.json();
+      
+      return {
+        id: data.user?.id || data.id,
+        name: data.user?.name || data.name,
+        email: data.user?.email || data.email,
+        mobile: data.user?.mobile || data.mobile,
+        profileImage: data.user?.profileImage || 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150'
+      };
+    } catch (error) {
+      console.error('Token validation error:', error);
+      throw error;
+    }
   }
 };
