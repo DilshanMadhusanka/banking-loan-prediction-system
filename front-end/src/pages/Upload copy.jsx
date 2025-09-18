@@ -60,28 +60,23 @@ function Upload() {
   };
 
   const handleUpload = async () => {
-  if (!file) {
-    error('Please select a file first');
-    return;
-  }
+    if (!file) {
+      error('Please select a file first');
+      return;
+    }
 
-  setUploading(true);
-
-  try {
-    // Call your dataService API
-    const result = await dataService.uploadFile(file);
-
-    // Set preview and show success toast
-    setPreview(result);
-    success(`File uploaded successfully! ${result.rowCount} records processed.`);
-  } catch (err) {
-    console.error(err);
-    error(err.message || 'Upload failed. Please try again.');
-  } finally {
-    setUploading(false);
-  }
-};
-
+    setUploading(true);
+    
+    try {
+      const result = await dataService.uploadFile(file);
+      setPreview(result);
+      success(`File uploaded successfully! ${result.rowCount} records processed.`);
+    } catch (err) {
+      error('Upload failed. Please try again.');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleCancel = () => {
     setFile(null);

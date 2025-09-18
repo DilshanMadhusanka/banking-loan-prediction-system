@@ -192,10 +192,10 @@ function Profile() {
             <div className="space-y-3">
               <Button
                 onClick={() => setShowAddUserModal(true)}
-                className="w-full"
+                 className="flex items-center justify-center w-full"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Add New User
+                <span>Add New User</span>
               </Button>
               
               <Button

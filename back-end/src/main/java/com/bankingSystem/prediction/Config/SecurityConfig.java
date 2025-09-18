@@ -41,7 +41,10 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> {}) // enable CORS
                 .authorizeHttpRequests(auth -> auth
-                       .requestMatchers("/login", "/api/v1/auth/login", "/api/v1/auth/register").permitAll()
+                       .requestMatchers(
+                               "/login",
+                               "/api/v1/auth/login",
+                               "/api/v1/auth/register" ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
@@ -97,4 +100,6 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }
+
+
 }

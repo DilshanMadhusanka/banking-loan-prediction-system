@@ -49,25 +49,19 @@ function Header({ onToggleSidebar }) {
         </div>
 
         {/* Right side */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-9">
           <div className="hidden text-sm text-gray-600 md:block">
             {currentDate}
           </div>
           
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-8">
             <span className="hidden text-sm font-medium text-gray-700 sm:inline">
               {user?.name}
             </span>
             
-            <img
-              src={user?.profileImage || 'https://via.placeholder.com/32'}
-              alt="Profile"
-              className="object-cover w-8 h-8 rounded-full"
-            />
-            
             <button
               onClick={handleLogout}
-              className="p-2 text-gray-600 transition-colors rounded-md hover:bg-gray-100 hover:text-primary focus:outline-none focus:ring-2 focus:ring-accent"
+              className="p-2 text-gray-600 transition-colors rounded-md hover:bg-gray-100 hover:text-primary focus:outline-none focus:ring-2 focus:ring-accent "
               aria-label="Logout"
             >
               <LogOut className="w-5 h-5" />

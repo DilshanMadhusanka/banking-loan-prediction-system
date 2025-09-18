@@ -6,35 +6,27 @@ const API_BASE_URL = import.meta.env.VITE_BASE_URL;
 export const dataService = {
   // POST /api/data/upload
   async uploadFile(file) {
-    // TODO: Replace with actual API call
-    console.log('API Stub - Upload file:', file.name, file.size);
-    
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Mock response with preview data
-    return {
-      success: true,
-      fileName: file.name,
-      rowCount: 1000,
-      preview: [
-        {
-          PRODUCT_CODE: 'PL001',
-          PRODUCT_NAME: 'Personal Loan',
-          PRODUCT_CATEGORY: 'Loans',
-          CONTRACT_NO: 'CT001',
-          CONTRACT_STATUS: 'Active'
-        },
-        {
-          PRODUCT_CODE: 'VL002',
-          PRODUCT_NAME: 'Vehicle Loan',
-          PRODUCT_CATEGORY: 'Auto',
-          CONTRACT_NO: 'CT002',
-          CONTRACT_STATUS: 'Closed'
-        }
-      ]
-    };
-  },
+  // Prepare FormData
+  const formData = new FormData();
+  formData.append('file', file);
+
+  // Send request with credentials: 'include' to automatically send cookies
+  const response = await fetch(`${API_BASE_URL}/data/file-upload`, {
+    method: 'POST',
+    credentials: 'include', // important: send cookie automatically
+    body: formData
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || 'File upload failed');
+  }
+
+  // Return backend response
+  const data = await response.json();
+  return data;
+},
+
 
   // POST /api/predict
   async makePrediction(formData) {
