@@ -4,16 +4,15 @@ const API_BASE_URL = import.meta.env.VITE_BASE_URL;
 
 
 export const dataService = {
-  // POST /api/data/upload
-  async uploadFile(file) {
+   async uploadFile(file) {
   // Prepare FormData
   const formData = new FormData();
   formData.append('file', file);
 
   // Send request with credentials: 'include' to automatically send cookies
-  const response = await fetch(`${API_BASE_URL}/data/file-upload`, {
+  const response = await fetch(`${API_BASE_URL}/data/upload`, {
     method: 'POST',
-    credentials: 'include', // important: send cookie automatically
+    //credentials: 'include', // important: send cookie automatically
     body: formData
   });
 

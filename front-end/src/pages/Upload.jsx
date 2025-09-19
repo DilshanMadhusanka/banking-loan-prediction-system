@@ -11,6 +11,8 @@ function Upload() {
   const [preview, setPreview] = useState(null);
   const [dragActive, setDragActive] = useState(false);
   const { success, error } = useToast();
+  const [uploadLocked, setUploadLocked] = useState(false);
+
 
   const handleDrag = (e) => {
     e.preventDefault();
@@ -74,6 +76,7 @@ function Upload() {
     // Set preview and show success toast
     setPreview(result);
     success(`File uploaded successfully! ${result.rowCount} records processed.`);
+    setUploadLocked(true); 
   } catch (err) {
     console.error(err);
     error(err.message || 'Upload failed. Please try again.');
@@ -95,73 +98,88 @@ function Upload() {
         <p className="text-gray-600">Import customer and contract data for analysis</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Upload Area */}
-        <Card title="File Upload" className="h-fit">
-          <div
-            className={`
-              relative border-2 border-dashed rounded-lg p-6 text-center transition-colors
-              ${dragActive 
-                ? 'border-accent bg-accent bg-opacity-5' 
-                : 'border-gray-300 hover:border-gray-400'
-              }
-            `}
-            onDragEnter={handleDrag}
-            onDragLeave={handleDrag}
-            onDragOver={handleDrag}
-            onDrop={handleDrop}
-          >
-            <input
-              type="file"
-              accept=".xlsx,.csv"
-              onChange={handleFileInput}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            />
-            
-            <UploadIcon className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-            
-            {file ? (
-              <div className="space-y-2">
-                <div className="flex items-center justify-center">
-                  <File className="h-5 w-5 text-accent mr-2" />
-                  <span className="text-sm font-medium text-gray-900">{file.name}</span>
-                </div>
-                <p className="text-xs text-gray-500">
-                  Size: {(file.size / 1024 / 1024).toFixed(2)} MB
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <p className="text-lg font-medium text-gray-900">
-                  Drop your file here, or <span className="text-accent">browse</span>
-                </p>
-                <p className="text-sm text-gray-500">
-                  Supports .xlsx and .csv files up to 10MB
-                </p>
-              </div>
-            )}
-          </div>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      {/* Upload Area */}
+<Card title="File Upload" className="h-fit">
+  <div
+    className={`
+      relative border-2 border-dashed rounded-lg p-6 text-center transition-colors
+      ${dragActive 
+        ? 'border-accent bg-accent bg-opacity-5' 
+        : 'border-gray-300 hover:border-gray-400'
+      }
+      ${uploadLocked ? 'opacity-50 pointer-events-none' : ''}
+    `}
+    onDragEnter={handleDrag}
+    onDragLeave={handleDrag}
+    onDragOver={handleDrag}
+    onDrop={handleDrop}
+  >
+    <input
+      type="file"
+      accept=".xlsx,.csv"
+      onChange={handleFileInput}
+      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+      disabled={uploadLocked} // 🔒 disable file input
+    />
 
-          {file && (
-            <div className="mt-6 flex space-x-3">
-              <Button 
-                onClick={handleUpload} 
-                loading={uploading}
-                disabled={uploading}
-                className="flex-1"
-              >
-                Upload File
-              </Button>
-              <Button 
-                variant="secondary" 
-                onClick={handleCancel}
-                disabled={uploading}
-              >
-                Cancel
-              </Button>
-            </div>
-          )}
-        </Card>
+    <UploadIcon className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+
+    {file ? (
+      <div className="space-y-2">
+        <div className="flex items-center justify-center">
+          <File className="w-5 h-5 mr-2 text-accent" />
+          <span className="text-sm font-medium text-gray-900">{file.name}</span>
+        </div>
+        <p className="text-xs text-gray-500">
+          Size: {(file.size / 1024 / 1024).toFixed(2)} MB
+        </p>
+      </div>
+    ) : (
+      <div className="space-y-2">
+        <p className="text-lg font-medium text-gray-900">
+          Drop your file here, or <span className="text-accent">browse</span>
+        </p>
+        <p className="text-sm text-gray-500">
+          Supports .xlsx and .csv files up to 10MB
+        </p>
+      </div>
+    )}
+  </div>
+
+  {file && !uploadLocked && ( // hide buttons once locked
+    <div className="flex mt-6 space-x-3">
+      <Button 
+        onClick={handleUpload} 
+        loading={uploading}
+        disabled={uploading}
+        className="flex-1"
+      >
+        Upload File
+      </Button>
+      <Button 
+        variant="secondary" 
+        onClick={handleCancel}
+        disabled={uploading}
+      >
+        Cancel
+      </Button>
+       <Button
+           variant="danger" >
+            Remove Uploaded Data !
+       </Button>
+      
+    </div>
+  )}
+
+  {uploadLocked && ( // show lock message
+    <p className="mt-4 text-sm text-center text-red-500">
+      🔒 Upload locked. You cannot upload another file.
+    </p>
+  )}
+</Card>
+
+ 
 
         {/* Upload Guidelines */}
         <Card title="Upload Guidelines">
@@ -209,7 +227,7 @@ function Upload() {
               <thead className="bg-gray-50">
                 <tr>
                   {preview.preview.length > 0 && Object.keys(preview.preview[0]).map((header) => (
-                    <th key={header} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th key={header} className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                       {header}
                     </th>
                   ))}
@@ -219,7 +237,7 @@ function Upload() {
                 {preview.preview.map((row, index) => (
                   <tr key={index}>
                     {Object.values(row).map((cell, cellIndex) => (
-                      <td key={cellIndex} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td key={cellIndex} className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
                         {cell}
                       </td>
                     ))}

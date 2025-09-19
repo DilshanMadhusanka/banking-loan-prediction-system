@@ -2,56 +2,78 @@ package com.bankingSystem.prediction.Entity;
 
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
 @Entity
-@Table(name = "loan-data")
+@Table(name = "bank_data")
 public class LoanDataEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+    private int Id;
+    @Column(length = 500)
     private String productCode;
+    @Column(length = 500)
     private String productName;
+    @Column(length = 255)
     private String productCategory;
+    @Column(length = 255)
     private String contractNo;
+    @Column(length = 255)
     private String contractStatus;
+    @Column(length = 50)
     private String contractDate;
+    @Column(length = 255)
     private String recoveryStatus;
+    @Column(length = 50)
     private String lastPaymentDate;
+    @Column(length = 50)
     private String reProcessDate;
+    @Column(length = 50)
     private String reschedule;
+    @Column(length = 50)
     private String dueFrequency;
     private Double netRental;
     private Integer noOfRental;
     private Integer paidRentals;
     private Integer cbArrearsAge;
+    @Column(length = 255)
     private String assetTypeName;
     private Integer yom;
+    @Column(length = 255)
     private String make;
+    @Column(length = 255)
     private String modelName;
+    @Column(length = 255)
     private String registration;
+    @Column(length = 255)
     private String registrationNo;
+    @Column(length = 50)
     private String gender;
+    @Column(length = 255)
     private String city;
+    @Column(length = 255)
     private String districtName;
+    @Column(length = 255)
     private String provinceName;
     private Double financeAmount;
     private Double customerValuation;
     private Double effectiveRate;
     private Integer age;
+    @Column(length = 50)
     private String maritalStatus;
     private Double income;
     private Double expense;
 
-    // getters and setters
-
+    // Default constructor
     public LoanDataEntity() {
-        // default constructor required for JPA and for your ExcelService
     }
 
-    public LoanDataEntity(Long id, String productCode, String productName, String productCategory, String contractNo, String contractStatus, String contractDate, String recoveryStatus, String lastPaymentDate, String reProcessDate, String reschedule, String dueFrequency, Double netRental, Integer noOfRental, Integer paidRentals, Integer cbArrearsAge, String assetTypeName, Integer yom, String make, String modelName, String registration, String registrationNo, String gender, String city, String districtName, String provinceName, Double financeAmount, Double customerValuation, Double effectiveRate, Integer age, String maritalStatus, Double income, Double expense) {
-        this.id = id;
+
+    public LoanDataEntity(String productCode, String productName, String productCategory, String contractNo, String contractStatus, String contractDate, String recoveryStatus, String lastPaymentDate, String reProcessDate, String reschedule, String dueFrequency, Double netRental, Integer noOfRental, Integer paidRentals, Integer cbArrearsAge, String assetTypeName, Integer yom, String make, String modelName, String registration, String registrationNo, String gender, String city, String districtName, String provinceName, Double financeAmount, Double customerValuation, Double effectiveRate, Integer age, String maritalStatus, Double income, Double expense) {
         this.productCode = productCode;
         this.productName = productName;
         this.productCategory = productCategory;
@@ -84,14 +106,6 @@ public class LoanDataEntity {
         this.maritalStatus = maritalStatus;
         this.income = income;
         this.expense = expense;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getProductCode() {
@@ -350,4 +364,3 @@ public class LoanDataEntity {
         this.expense = expense;
     }
 }
-

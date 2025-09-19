@@ -44,7 +44,8 @@ public class SecurityConfig {
                        .requestMatchers(
                                "/login",
                                "/api/v1/auth/login",
-                               "/api/v1/auth/register" ).permitAll()
+                               "/api/v1/auth/register",
+                               "/api/v1/data/upload").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

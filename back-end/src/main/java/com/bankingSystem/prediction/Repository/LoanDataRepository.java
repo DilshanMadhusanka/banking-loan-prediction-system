@@ -2,7 +2,9 @@ package com.bankingSystem.prediction.Repository;
 
 import com.bankingSystem.prediction.Entity.LoanDataEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface LoanDataRepository  extends JpaRepository<LoanDataEntity, Long> {
+@Repository
+public interface LoanDataRepository extends JpaRepository<LoanDataEntity, Integer> {
 
 }
