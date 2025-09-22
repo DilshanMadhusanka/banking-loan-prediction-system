@@ -1,60 +1,64 @@
-// Authentication Service - API Stubs
-// TODO: Replace with actual API endpoints
+// const API_BASE_URL = 'http://localhost:8080/api/v1';
 
-//const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.VITE_BASE_URL;
+
 
 export const authService = {
-  // POST /api/auth/login
-  async login(email, password) {
-    // TODO: Replace with actual API call
-    console.log('API Stub - Login attempt:', { email, password });
-    
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Simulate successful login
-    if (email && password) {
-      return {
-        token: 'mock-jwt-token-' + Date.now(),
-        user: {
-          id: '1',
-          name: 'John Doe',
-          email: email,
-          mobile: '+1234567890',
-          profileImage: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150'
-        }
-      };
-    } else {
-      throw new Error('Invalid credentials');
+  // POST /auth/login
+  async login(username, password) {
+    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include', // important! cookies will be sent/received
+      body: JSON.stringify({ username, password })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Login failed');
     }
+
+    // The cookie is set automatically; token in response is null
+    const data = await response.json();
+
+    // Fetch user profile from backend
+    const userResponse = await fetch(`${API_BASE_URL}/user/profile`, {
+      method: 'GET',
+      credentials: 'include' // send cookie automatically
+    });
+
+    if (!userResponse.ok) throw new Error('Failed to fetch user profile');
+    const userData = await userResponse.json();
+
+    return {
+      user: {
+        id: userData.id,
+        name: userData.name,
+        username: userData.username,
+        email: userData.email,
+        createdAt: userData.createdAt
+      }
+    };
   },
 
-  // POST /api/auth/logout
+  // POST /auth/logout
   async logout() {
-    // TODO: Replace with actual API call
-    console.log('API Stub - Logout');
-    
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
+    await fetch(`${API_BASE_URL}/auth/logout`, {
+      method: 'POST',
+      credentials: 'include'
+    });
     return { success: true };
   },
 
-  // GET /api/auth/validate-token
-  async validateToken(token) {
-    // TODO: Replace with actual API call
-    console.log('API Stub - Validate token:', token);
-    
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
-    // Mock user data
-    return {
-      id: '1',
-      name: 'John Doe',
-      email: 'john.doe@bank.com',
-      mobile: '+1234567890',
-      profileImage: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150'
-    };
+  // GET /user/profile
+  async getProfile() {
+    const response = await fetch(`${API_BASE_URL}/user/profile`, {
+      method: 'GET',
+      credentials: 'include'
+    });
+
+    if (!response.ok) throw new Error('Not authenticated');
+
+    return response.json();
   }
 };

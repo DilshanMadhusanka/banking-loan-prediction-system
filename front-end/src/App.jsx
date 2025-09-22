@@ -17,12 +17,8 @@ import './index.css';
 
 // Protected Route Component
 function ProtectedRoute({ children }) {
-  //const { isAuthenticated } = useAuth();
-  // Example in AuthContext.js
-const [isAuthenticated, setIsAuthenticated] = React.useState(true); // force true for now
+  const { isAuthenticated } = useAuth();
   return isAuthenticated ? children : <Navigate to="/login" replace />;
-
-  
 }
 
 function AppRoutes() {
