@@ -1,0 +1,19 @@
+
+Numerical Columns
+
+    DUE_FREQUENCY – Payment frequency (weekly, monthly)
+    NET_RENTAL – Amount of installment per period
+    NO_OF_RENTAL – Number of installments agreed
+    FINANCE_AMOUNT – Loan principal
+    CUSTOMER_VALUATION – Value of the collateral/asset
+    EFFECTIVE_RATE – Interest rate (%)
+    AGE – Borrower’s age
+    INCOME – Borrower’s income
+
+Categorical Columns
+
+    CONTRACT_STATUS – Target variable (Default vs Non-Default)
+    MARITAL_STATUS_M – Married
+    MARITAL_STATUS_Other – Unknown
+    MARITAL_STATUS_S – Single
+    MARITAL_STATUS_W – Widowed/Separated
