@@ -10,7 +10,7 @@ class LoanInput(BaseModel):
     EFFECTIVE_RATE: float
     AGE: int
     INCOME: float
-    MARITAL_STATUS: int
+    MARITAL_STATUS: str
     #MARITAL_STATUS_M: int
     #MARITAL_STATUS_Other: int
     #MARITAL_STATUS_S: int

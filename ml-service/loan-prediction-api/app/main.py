@@ -9,26 +9,22 @@ app = FastAPI(title="Loan Default Prediction API")
 def home():
     return {"message": "Loan Prediction API is running!"}
 
-@app.post("/predict")
+@app.post("/base-predict")
 def predict_loan(data: LoanInput):
     # Convert input to DataFrame
     df = pd.DataFrame([data.dict()])
 
-    # Handle DUE_FREQUENCY encoding
-    df = pd.get_dummies(df, columns=["DUE_FREQUENCY"], drop_first=True)
+    # One-hot encode BOTH categorical variables
+    df = pd.get_dummies(df, columns=["DUE_FREQUENCY", "MARITAL_STATUS"], drop_first=True)
 
-    # Align with model features
+    # Reindex to align with model training features
     df = df.reindex(columns=model.feature_names_in_, fill_value=0)
 
     # Make prediction
     prediction = model.predict(df)[0]
     probability = model.predict_proba(df)[:, 1][0]
 
-
     return {
         "prediction": int(prediction),
         "probability_of_default": float(probability)
     }
-
-
-

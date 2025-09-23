@@ -9,16 +9,42 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 
 function Predict() {
   const [formData, setFormData] = useState({
-   
+    // Product Information
+    PRODUCT_CODE: '',
+    PRODUCT_NAME: '',
+    PRODUCT_CATEGORY: '',
+    
     // Contract Information
+    CONTRACT_NO: '',
+    CONTRACT_STATUS: '',
+    CONTRACT_DATE: '',
+    RECOVERY_STATUS: '',
+    LAST_PAYMENT_DATE: '',
+    RE_PROCESS_DATE: '',
+    RESCHEDULE: '',
     DUE_FREQUENCY: '',
     NET_RENTAL: '',
     NO_OF_RENTAL: '',
+    PAID_RENTALS: '',
+    CB_ARREARS_AGE: '',
+    
+    // Asset Information
+    ASSET_TYPE_NAME: '',
+    YOM: '',
+    MAKE: '',
+    MODEL_NAME: '',
+    REGISTRATION: '',
+    REGISTRATION_NO: '',
     
     // Customer Information
+    GENDER: '',
+    CITY: '',
+    DISTRICT_NAME: '',
+    PROVINCE_NAME: '',
     AGE: '',
     MARITAL_STATUS: '',
     INCOME: '',
+    EXPENSE: '',
     
     // Financial Information
     FINANCE_AMOUNT: '',
@@ -26,7 +52,7 @@ function Predict() {
     EFFECTIVE_RATE: '',
     
     // LLM Prompt
-    //llmPrompt: ''
+    llmPrompt: ''
   });
 
   const [prediction, setPrediction] = useState(null);
@@ -57,44 +83,28 @@ function Predict() {
     }));
   };
 
- const handlePredict = async () => {
-  const requiredFields = ['DUE_FREQUENCY', 'NET_RENTAL', 'NO_OF_RENTAL', 'AGE', 'MARITAL_STATUS', 'INCOME', 'FINANCE_AMOUNT', 'CUSTOMER_VALUATION', 'EFFECTIVE_RATE'];
-  const missingFields = requiredFields.filter(field => !formData[field]);
+  const handlePredict = async () => {
+    // Basic validation
+    const requiredFields = ['PRODUCT_CODE', 'CONTRACT_NO', 'FINANCE_AMOUNT'];
+    const missingFields = requiredFields.filter(field => !formData[field]);
+    
+    if (missingFields.length > 0) {
+      error(`Please fill in required fields: ${missingFields.join(', ')}`);
+      return;
+    }
 
-  if (missingFields.length > 0) {
-    error(`Please fill in required fields: ${missingFields.join(', ')}`);
-    return;
-  }
-
-  setLoading(true);
-
-  try {
-    // Convert string numbers to actual numbers
-    const payload = {
-      ...formData,
-      NET_RENTAL: Number(formData.NET_RENTAL),
-      NO_OF_RENTAL: Number(formData.NO_OF_RENTAL),
-      FINANCE_AMOUNT: Number(formData.FINANCE_AMOUNT),
-      CUSTOMER_VALUATION: Number(formData.CUSTOMER_VALUATION),
-      EFFECTIVE_RATE: Number(formData.EFFECTIVE_RATE),
-      AGE: Number(formData.AGE),
-      INCOME: Number(formData.INCOME),
-      MARITAL_STATUS: formData.MARITAL_STATUS[0] // "Single" => "S"
-    };
-
-    const result = await dataService.makePrediction(payload);
-    setPrediction(result.prediction);
-    success('Prediction completed successfully!');
-  } catch (err) {
-    console.error(err);
-    error(err.message || 'Prediction failed. Please try again.');
-  } finally {
-    setLoading(false);
-  }
-};
-
-
-  
+    setLoading(true);
+    
+    try {
+      const result = await dataService.makePrediction(formData);
+      setPrediction(result.prediction);
+      success('Prediction completed successfully!');
+    } catch (err) {
+      error('Prediction failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSavePrediction = async () => {
     if (!prediction) {
@@ -117,16 +127,16 @@ function Predict() {
   const SectionHeader = ({ title, section, count }) => (
     <button
       onClick={() => toggleSection(section)}
-      className="flex items-center justify-between w-full p-4 mb-4 transition-colors rounded-lg bg-gray-50 hover:bg-gray-100"
+      className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 transition-colors rounded-lg mb-4"
     >
       <div className="flex items-center">
         <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
         <span className="ml-2 text-sm text-gray-500">({count} fields)</span>
       </div>
       {expandedSections[section] ? (
-        <ChevronUp className="w-5 h-5 text-gray-500" />
+        <ChevronUp className="h-5 w-5 text-gray-500" />
       ) : (
-        <ChevronDown className="w-5 h-5 text-gray-500" />
+        <ChevronDown className="h-5 w-5 text-gray-500" />
       )}
     </button>
   );
@@ -138,18 +148,88 @@ function Predict() {
         <p className="text-gray-600">Enter customer and contract details to generate risk assessment</p>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Prediction Form */}
-        <div className="space-y-6 lg:col-span-2">
+        <div className="lg:col-span-2 space-y-6">
           <Card title="Prediction Form">
-            
+            {/* Product Information */}
+            <div className="space-y-4">
+              <SectionHeader title="Product Information" section="product" count={3} />
+              
+              {expandedSections.product && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Input
+                    label="Product Code"
+                    value={formData.PRODUCT_CODE}
+                    onChange={(e) => handleInputChange('PRODUCT_CODE', e.target.value)}
+                    placeholder="e.g., PL001"
+                    required
+                  />
+                  <Input
+                    label="Product Name"
+                    value={formData.PRODUCT_NAME}
+                    onChange={(e) => handleInputChange('PRODUCT_NAME', e.target.value)}
+                    placeholder="e.g., Personal Loan"
+                  />
+                  <Select
+                    label="Product Category"
+                    value={formData.PRODUCT_CATEGORY}
+                    onChange={(e) => handleInputChange('PRODUCT_CATEGORY', e.target.value)}
+                    options={['Loans', 'Auto', 'Personal', 'Business', 'Mortgage']}
+                  />
+                </div>
+              )}
+            </div>
+
             {/* Contract Information */}
             <div className="space-y-4">
               <SectionHeader title="Contract Information" section="contract" count={11} />
               
               {expandedSections.contract && (
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Input
+                    label="Contract Number"
+                    value={formData.CONTRACT_NO}
+                    onChange={(e) => handleInputChange('CONTRACT_NO', e.target.value)}
+                    placeholder="e.g., CT001"
+                    required
+                  />
+                  <Select
+                    label="Contract Status"
+                    value={formData.CONTRACT_STATUS}
+                    onChange={(e) => handleInputChange('CONTRACT_STATUS', e.target.value)}
+                    options={['Active', 'Closed', 'Suspended', 'Default']}
+                  />
+                  <Input
+                    label="Contract Date"
+                    type="date"
+                    value={formData.CONTRACT_DATE}
+                    onChange={(e) => handleInputChange('CONTRACT_DATE', e.target.value)}
+                  />
+                  <Select
+                    label="Recovery Status"
+                    value={formData.RECOVERY_STATUS}
+                    onChange={(e) => handleInputChange('RECOVERY_STATUS', e.target.value)}
+                    options={['None', 'In Progress', 'Completed', 'Failed']}
+                  />
+                  <Input
+                    label="Last Payment Date"
+                    type="date"
+                    value={formData.LAST_PAYMENT_DATE}
+                    onChange={(e) => handleInputChange('LAST_PAYMENT_DATE', e.target.value)}
+                  />
+                  <Input
+                    label="Re-process Date"
+                    type="date"
+                    value={formData.RE_PROCESS_DATE}
+                    onChange={(e) => handleInputChange('RE_PROCESS_DATE', e.target.value)}
+                  />
+                  <Select
+                    label="Reschedule"
+                    value={formData.RESCHEDULE}
+                    onChange={(e) => handleInputChange('RESCHEDULE', e.target.value)}
+                    options={['Yes', 'No']}
+                  />
                   <Select
                     label="Due Frequency"
                     value={formData.DUE_FREQUENCY}
@@ -169,19 +249,94 @@ function Predict() {
                     value={formData.NO_OF_RENTAL}
                     onChange={(e) => handleInputChange('NO_OF_RENTAL', e.target.value)}
                   />
-                
+                  <Input
+                    label="Paid Rentals"
+                    type="number"
+                    value={formData.PAID_RENTALS}
+                    onChange={(e) => handleInputChange('PAID_RENTALS', e.target.value)}
+                  />
+                  <Input
+                    label="CB Arrears Age"
+                    type="number"
+                    value={formData.CB_ARREARS_AGE}
+                    onChange={(e) => handleInputChange('CB_ARREARS_AGE', e.target.value)}
+                  />
                 </div>
               )}
             </div>
 
+            {/* Asset Information */}
+            <div className="space-y-4">
+              <SectionHeader title="Asset Information" section="asset" count={5} />
+              
+              {expandedSections.asset && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Input
+                    label="Asset Type Name"
+                    value={formData.ASSET_TYPE_NAME}
+                    onChange={(e) => handleInputChange('ASSET_TYPE_NAME', e.target.value)}
+                    placeholder="e.g., Vehicle"
+                  />
+                  <Input
+                    label="Year of Manufacture"
+                    type="number"
+                    value={formData.YOM}
+                    onChange={(e) => handleInputChange('YOM', e.target.value)}
+                    placeholder="e.g., 2020"
+                  />
+                  <Input
+                    label="Make"
+                    value={formData.MAKE}
+                    onChange={(e) => handleInputChange('MAKE', e.target.value)}
+                    placeholder="e.g., Toyota"
+                  />
+                  <Input
+                    label="Model Name"
+                    value={formData.MODEL_NAME}
+                    onChange={(e) => handleInputChange('MODEL_NAME', e.target.value)}
+                    placeholder="e.g., Camry"
+                  />
+                  <Input
+                    label="Registration"
+                    value={formData.REGISTRATION}
+                    onChange={(e) => handleInputChange('REGISTRATION', e.target.value)}
+                  />
+                  <Input
+                    label="Registration Number"
+                    value={formData.REGISTRATION_NO}
+                    onChange={(e) => handleInputChange('REGISTRATION_NO', e.target.value)}
+                  />
+                </div>
+              )}
+            </div>
 
             {/* Customer Information */}
             <div className="space-y-4">
               <SectionHeader title="Customer Information" section="customer" count={8} />
               
               {expandedSections.customer && (
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Select
+                    label="Gender"
+                    value={formData.GENDER}
+                    onChange={(e) => handleInputChange('GENDER', e.target.value)}
+                    options={['Male', 'Female', 'Other']}
+                  />
+                  <Input
+                    label="City"
+                    value={formData.CITY}
+                    onChange={(e) => handleInputChange('CITY', e.target.value)}
+                  />
+                  <Input
+                    label="District Name"
+                    value={formData.DISTRICT_NAME}
+                    onChange={(e) => handleInputChange('DISTRICT_NAME', e.target.value)}
+                  />
+                  <Input
+                    label="Province Name"
+                    value={formData.PROVINCE_NAME}
+                    onChange={(e) => handleInputChange('PROVINCE_NAME', e.target.value)}
+                  />
                   <Input
                     label="Age"
                     type="number"
@@ -201,7 +356,13 @@ function Predict() {
                     onChange={(e) => handleInputChange('INCOME', e.target.value)}
                     placeholder="0.00"
                   />
-                 
+                  <Input
+                    label="Expense"
+                    type="number"
+                    value={formData.EXPENSE}
+                    onChange={(e) => handleInputChange('EXPENSE', e.target.value)}
+                    placeholder="0.00"
+                  />
                 </div>
               )}
             </div>
@@ -211,7 +372,7 @@ function Predict() {
               <SectionHeader title="Financial Information" section="financial" count={3} />
               
               {expandedSections.financial && (
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Input
                     label="Finance Amount"
                     type="number"
@@ -240,13 +401,13 @@ function Predict() {
             </div>
 
             {/* LLM Prompt */}
-            {/* <div className="space-y-4">
+            <div className="space-y-4">
               <SectionHeader title="LLM Analysis Prompt" section="llm" count={1} />
               
               {expandedSections.llm && (
                 <div className="space-y-4">
                   <div>
-                    <label className="block mb-2 text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       Custom Analysis Prompt
                     </label>
                     <textarea
@@ -259,10 +420,10 @@ function Predict() {
                   </div>
                 </div>
               )}
-            </div> */}
+            </div>
 
             {/* Action Buttons */}
-            <div className="flex pt-6 space-x-4 border-t border-gray-200">
+            <div className="flex space-x-4 pt-6 border-t border-gray-200">
               <Button
                 onClick={handlePredict}
                 loading={loading}
@@ -304,7 +465,7 @@ function Predict() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Risk Score</label>
                     <div className="mt-1">
-                      <div className="h-2 bg-gray-200 rounded-full">
+                      <div className="bg-gray-200 rounded-full h-2">
                         <div 
                           className={`h-2 rounded-full ${
                             prediction.riskScore > 0.7 ? 'bg-red-500' :
@@ -314,7 +475,7 @@ function Predict() {
                           style={{ width: `${prediction.riskScore * 100}%` }}
                         />
                       </div>
-                      <span className="block mt-1 text-sm text-gray-600">
+                      <span className="text-sm text-gray-600 mt-1 block">
                         {(prediction.riskScore * 100).toFixed(1)}%
                       </span>
                     </div>
@@ -328,18 +489,18 @@ function Predict() {
                   </div>
 
                   <div>
-                    <label className="block mb-2 text-sm font-medium text-gray-700">Recommendation</label>
-                    <p className="p-3 text-sm text-gray-600 rounded-lg bg-gray-50">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Recommendation</label>
+                    <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
                       {prediction.recommendation}
                     </p>
                   </div>
 
                   <div>
-                    <label className="block mb-2 text-sm font-medium text-gray-700">Risk Factors</label>
-                    <ul className="space-y-1 text-sm text-gray-600">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Risk Factors</label>
+                    <ul className="text-sm text-gray-600 space-y-1">
                       {prediction.factors.map((factor, index) => (
                         <li key={index} className="flex items-center">
-                          <span className="w-2 h-2 mr-2 rounded-full bg-accent"></span>
+                          <span className="w-2 h-2 bg-accent rounded-full mr-2"></span>
                           {factor}
                         </li>
                       ))}
@@ -348,8 +509,8 @@ function Predict() {
                 </div>
               </div>
             ) : (
-              <div className="py-12 text-center">
-                <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full">
+              <div className="text-center py-12">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-2xl">🎯</span>
                 </div>
                 <p className="text-gray-500">Fill the form and click "Generate Prediction" to see results</p>

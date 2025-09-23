@@ -44,38 +44,17 @@ public class LoanDataService {
             if (hasEmptyCell) continue; // skip row if any cell is empty
 
             LoanDataEntity loanData = new LoanDataEntity();
-            loanData.setProductCode(getCellValueAsString(row.getCell(0)));
-            loanData.setProductName(getCellValueAsString(row.getCell(1)));
-            loanData.setProductCategory(getCellValueAsString(row.getCell(2)));
-            loanData.setContractNo(getCellValueAsString(row.getCell(3)));
             loanData.setContractStatus(getCellValueAsString(row.getCell(4)));
-            loanData.setContractDate(getCellValueAsString(row.getCell(5)));
-            loanData.setRecoveryStatus(getCellValueAsString(row.getCell(6)));
-            loanData.setLastPaymentDate(getCellValueAsString(row.getCell(7)));
-            loanData.setReProcessDate(getCellValueAsString(row.getCell(8)));
-            loanData.setReschedule(getCellValueAsString(row.getCell(9)));
             loanData.setDueFrequency(getCellValueAsString(row.getCell(10)));
             loanData.setNetRental(getCellValueAsDouble(row.getCell(11)));
             loanData.setNoOfRental(getCellValueAsInteger(row.getCell(12)));
-            loanData.setPaidRentals(getCellValueAsInteger(row.getCell(13)));
-            loanData.setCbArrearsAge(getCellValueAsInteger(row.getCell(14)));
-            loanData.setAssetTypeName(getCellValueAsString(row.getCell(15)));
-            loanData.setYom(getCellValueAsInteger(row.getCell(16)));
-            loanData.setMake(getCellValueAsString(row.getCell(17)));
-            loanData.setModelName(getCellValueAsString(row.getCell(18)));
-            loanData.setRegistration(getCellValueAsString(row.getCell(19)));
-            loanData.setRegistrationNo(getCellValueAsString(row.getCell(20)));
-            loanData.setGender(getCellValueAsString(row.getCell(21)));
-            loanData.setCity(getCellValueAsString(row.getCell(22)));
-            loanData.setDistrictName(getCellValueAsString(row.getCell(23)));
-            loanData.setProvinceName(getCellValueAsString(row.getCell(24)));
             loanData.setFinanceAmount(getCellValueAsDouble(row.getCell(25)));
             loanData.setCustomerValuation(getCellValueAsDouble(row.getCell(26)));
             loanData.setEffectiveRate(getCellValueAsDouble(row.getCell(27)));
             loanData.setAge(getCellValueAsInteger(row.getCell(28)));
             loanData.setMaritalStatus(getCellValueAsString(row.getCell(29)));
             loanData.setIncome(getCellValueAsDouble(row.getCell(30)));
-            loanData.setExpense(getCellValueAsDouble(row.getCell(31)));
+
 
             loanDataList.add(loanData);
         }

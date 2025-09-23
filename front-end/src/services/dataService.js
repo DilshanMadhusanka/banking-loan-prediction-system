@@ -26,31 +26,36 @@ export const dataService = {
   return data;
 },
 
-
-  // POST /api/predict
+  // POST /ml/predict
   async makePrediction(formData) {
-    // TODO: Replace with actual API call
-    console.log('API Stub - Make prediction:', formData);
-    
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
-    // Mock prediction result
+    const response = await fetch(`${API_BASE_URL}/ml/predict`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Prediction API failed');
+    }
+
+    const result = await response.json();
+
+    // Map backend response to your frontend prediction structure
     return {
       success: true,
       prediction: {
-        riskScore: 0.75,
-        category: 'High Risk',
-        recommendation: 'Requires additional collateral',
-        confidence: 0.89,
-        factors: [
-          'High debt-to-income ratio',
-          'Previous late payments',
-          'Low asset valuation'
-        ]
+        riskScore: result.probability_of_default,
+        category: result.prediction === 1 ? 'High Risk' : 'Low Risk',
+        recommendation: result.prediction === 1 
+          ? 'Requires additional collateral' 
+          : 'Standard monitoring',
+        confidence: result.probability_of_default,
+        factors: [] // optional: add if backend provides reasons/factors
       }
     };
   },
+
 
   // POST /api/predictions/save
   async savePrediction(predictionData) {
