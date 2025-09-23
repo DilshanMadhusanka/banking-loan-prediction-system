@@ -27,34 +27,22 @@ export const dataService = {
 },
 
   // POST /ml/predict
-  async makePrediction(formData) {
+  async makePrediction(payload) {
     const response = await fetch(`${API_BASE_URL}/ml/predict`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData)
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || 'Prediction API failed');
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(errData.message || "Prediction request failed");
     }
 
-    const result = await response.json();
-
-    // Map backend response to your frontend prediction structure
-    return {
-      success: true,
-      prediction: {
-        riskScore: result.probability_of_default,
-        category: result.prediction === 1 ? 'High Risk' : 'Low Risk',
-        recommendation: result.prediction === 1 
-          ? 'Requires additional collateral' 
-          : 'Standard monitoring',
-        confidence: result.probability_of_default,
-        factors: [] // optional: add if backend provides reasons/factors
-      }
-    };
+    return response.json(); // backend response { ml_result, llm_result }
   },
+
+
 
 
   // POST /api/predictions/save

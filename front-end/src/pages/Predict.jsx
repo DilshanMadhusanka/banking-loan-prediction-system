@@ -26,7 +26,7 @@ function Predict() {
     EFFECTIVE_RATE: '',
     
     // LLM Prompt
-    //llmPrompt: ''
+    customer_behavior: ''
   });
 
   const [prediction, setPrediction] = useState(null);
@@ -57,41 +57,59 @@ function Predict() {
     }));
   };
 
- const handlePredict = async () => {
-  const requiredFields = ['DUE_FREQUENCY', 'NET_RENTAL', 'NO_OF_RENTAL', 'AGE', 'MARITAL_STATUS', 'INCOME', 'FINANCE_AMOUNT', 'CUSTOMER_VALUATION', 'EFFECTIVE_RATE'];
+
+const handlePredict = async () => {
+  const requiredFields = [
+    "DUE_FREQUENCY", "NET_RENTAL", "NO_OF_RENTAL", 
+    "AGE", "MARITAL_STATUS", "INCOME", 
+    "FINANCE_AMOUNT", "CUSTOMER_VALUATION", 
+    "EFFECTIVE_RATE", "customer_behavior"
+  ];
   const missingFields = requiredFields.filter(field => !formData[field]);
 
   if (missingFields.length > 0) {
-    error(`Please fill in required fields: ${missingFields.join(', ')}`);
+    error(`Please fill in required fields: ${missingFields.join(", ")}`);
     return;
   }
 
   setLoading(true);
 
   try {
-    // Convert string numbers to actual numbers
+    // Send the exact shape your backend expects
     const payload = {
-      ...formData,
-      NET_RENTAL: Number(formData.NET_RENTAL),
-      NO_OF_RENTAL: Number(formData.NO_OF_RENTAL),
-      FINANCE_AMOUNT: Number(formData.FINANCE_AMOUNT),
-      CUSTOMER_VALUATION: Number(formData.CUSTOMER_VALUATION),
-      EFFECTIVE_RATE: Number(formData.EFFECTIVE_RATE),
-      AGE: Number(formData.AGE),
-      INCOME: Number(formData.INCOME),
-      MARITAL_STATUS: formData.MARITAL_STATUS[0] // "Single" => "S"
+      loan_data: {
+        DUE_FREQUENCY: formData.DUE_FREQUENCY,
+        NET_RENTAL: Number(formData.NET_RENTAL),
+        NO_OF_RENTAL: Number(formData.NO_OF_RENTAL),
+        FINANCE_AMOUNT: Number(formData.FINANCE_AMOUNT),
+        CUSTOMER_VALUATION: Number(formData.CUSTOMER_VALUATION),
+        EFFECTIVE_RATE: Number(formData.EFFECTIVE_RATE),
+        AGE: Number(formData.AGE),
+        INCOME: Number(formData.INCOME),
+        MARITAL_STATUS: formData.MARITAL_STATUS
+      },
+      customer_behavior: formData.customer_behavior
     };
 
     const result = await dataService.makePrediction(payload);
-    setPrediction(result.prediction);
-    success('Prediction completed successfully!');
+
+    setPrediction({
+      category: result.llm_result.risk_category,
+      confidence: result.llm_result.confidence,
+      recommendation: result.llm_result.recommendation,
+      factors: result.llm_result.factors,
+      riskScore: result.ml_result.probability_of_default
+    });
+
+    success("Prediction completed successfully!");
   } catch (err) {
     console.error(err);
-    error(err.message || 'Prediction failed. Please try again.');
+    error(err.message || "Prediction failed. Please try again.");
   } finally {
     setLoading(false);
   }
 };
+
 
 
   
@@ -240,7 +258,7 @@ function Predict() {
             </div>
 
             {/* LLM Prompt */}
-            {/* <div className="space-y-4">
+            <div className="space-y-4">
               <SectionHeader title="LLM Analysis Prompt" section="llm" count={1} />
               
               {expandedSections.llm && (
@@ -250,8 +268,8 @@ function Predict() {
                       Custom Analysis Prompt
                     </label>
                     <textarea
-                      value={formData.llmPrompt}
-                      onChange={(e) => handleInputChange('llmPrompt', e.target.value)}
+                      value={formData.customer_behavior}
+                      onChange={(e) => handleInputChange('customer_behavior', e.target.value)}
                       placeholder="Enter specific instructions for the AI analysis..."
                       rows={4}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent"
@@ -259,7 +277,7 @@ function Predict() {
                   </div>
                 </div>
               )}
-            </div> */}
+            </div>
 
             {/* Action Buttons */}
             <div className="flex pt-6 space-x-4 border-t border-gray-200">
@@ -292,8 +310,8 @@ function Predict() {
                 <div className="text-center">
                   <div className={`
                     inline-flex items-center px-4 py-2 rounded-full text-sm font-medium
-                    ${prediction.category === 'High Risk' ? 'bg-red-100 text-red-800' :
-                      prediction.category === 'Medium Risk' ? 'bg-yellow-100 text-yellow-800' :
+                    ${prediction.category === 'High' ? 'bg-red-100 text-red-800' :
+                      prediction.category === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
                       'bg-green-100 text-green-800'}
                   `}>
                     {prediction.category}

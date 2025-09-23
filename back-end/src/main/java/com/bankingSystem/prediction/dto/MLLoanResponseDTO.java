@@ -1,14 +1,19 @@
+// MLLoanResponseDTO.java
 package com.bankingSystem.prediction.dto;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class MLLoanResponseDTO {
 
-    private int prediction;
-    private double probability_of_default;
+    @JsonProperty("ml_result")
+    private MLResultDTO ml_result;
 
-    public int getPrediction() { return prediction; }
-    public void setPrediction(int prediction) { this.prediction = prediction; }
+    @JsonProperty("llm_result")
+    private LLMResultDTO llm_result;
 
-    public double getProbability_of_default() { return probability_of_default; }
-    public void setProbability_of_default(double probability_of_default) { this.probability_of_default = probability_of_default; }
+    public MLResultDTO getMl_result() { return ml_result; }
+    public void setMl_result(MLResultDTO ml_result) { this.ml_result = ml_result; }
+
+    public LLMResultDTO getLlm_result() { return llm_result; }
+    public void setLlm_result(LLMResultDTO llm_result) { this.llm_result = llm_result; }
 }
-

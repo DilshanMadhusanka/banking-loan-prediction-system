@@ -1,5 +1,5 @@
 import joblib
+from app.config import MODEL_PATH
 
-MODEL_PATH = r"D:\Projects\banking-loan-prediction-system\ml-service\ml-modal\fyp-gradientboost.pkl"
-
+# Load ML model once at startup
 model = joblib.load(MODEL_PATH)

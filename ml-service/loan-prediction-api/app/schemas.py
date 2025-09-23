@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 
-# input format for ML model
 class LoanInput(BaseModel):
     DUE_FREQUENCY: str
     NET_RENTAL: float
@@ -11,7 +10,7 @@ class LoanInput(BaseModel):
     AGE: int
     INCOME: float
     MARITAL_STATUS: str
-    #MARITAL_STATUS_M: int
-    #MARITAL_STATUS_Other: int
-    #MARITAL_STATUS_S: int
-    #MARITAL_STATUS_W: int
+
+class FinalInput(BaseModel):
+    loan_data: LoanInput
+    customer_behavior: str
