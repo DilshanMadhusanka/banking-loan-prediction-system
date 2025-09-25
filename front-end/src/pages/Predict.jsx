@@ -1,32 +1,34 @@
-import React, { useState } from 'react';
-import Card from '../components/UI/Card';
-import Input from '../components/UI/Input';
-import Select from '../components/UI/Select';
-import Button from '../components/UI/Button';
-import { dataService } from '../services/dataService';
-import { useToast } from '../contexts/ToastContext';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import React, { useState } from "react";
+import Card from "../components/UI/Card";
+import Input from "../components/UI/Input";
+import Select from "../components/UI/Select";
+import Button from "../components/UI/Button";
+import { dataService } from "../services/dataService";
+import { useToast } from "../contexts/ToastContext";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 function Predict() {
   const [formData, setFormData] = useState({
-   
     // Contract Information
-    DUE_FREQUENCY: '',
-    NET_RENTAL: '',
-    NO_OF_RENTAL: '',
-    
+    DUE_FREQUENCY: "",
+    NET_RENTAL: "",
+    NO_OF_RENTAL: "",
+
     // Customer Information
-    AGE: '',
-    MARITAL_STATUS: '',
-    INCOME: '',
-    
+    NAME: "",
+    MOBILE: "",
+    DISTRICT: "",
+    AGE: "",
+    MARITAL_STATUS: "",
+    INCOME: "",
+
     // Financial Information
-    FINANCE_AMOUNT: '',
-    CUSTOMER_VALUATION: '',
-    EFFECTIVE_RATE: '',
-    
+    FINANCE_AMOUNT: "",
+    CUSTOMER_VALUATION: "",
+    EFFECTIVE_RATE: "",
+
     // LLM Prompt
-    customer_behavior: ''
+    customer_behavior: "",
   });
 
   const [prediction, setPrediction] = useState(null);
@@ -38,95 +40,143 @@ function Predict() {
     asset: false,
     customer: false,
     financial: false,
-    llm: false
+    llm: false,
   });
 
   const { success, error } = useToast();
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   const toggleSection = (section) => {
-    setExpandedSections(prev => ({
+    setExpandedSections((prev) => ({
       ...prev,
-      [section]: !prev[section]
+      [section]: !prev[section],
     }));
   };
 
+  const handlePredict = async () => {
+    const requiredFields = [
+      "DUE_FREQUENCY",
+      "NET_RENTAL",
+      "NO_OF_RENTAL",
+      "AGE",
+      "MARITAL_STATUS",
+      "INCOME",
+      "FINANCE_AMOUNT",
+      "CUSTOMER_VALUATION",
+      "EFFECTIVE_RATE",
+      "customer_behavior",
+    ];
+    const missingFields = requiredFields.filter((field) => !formData[field]);
 
-const handlePredict = async () => {
-  const requiredFields = [
-    "DUE_FREQUENCY", "NET_RENTAL", "NO_OF_RENTAL", 
-    "AGE", "MARITAL_STATUS", "INCOME", 
-    "FINANCE_AMOUNT", "CUSTOMER_VALUATION", 
-    "EFFECTIVE_RATE", "customer_behavior"
-  ];
-  const missingFields = requiredFields.filter(field => !formData[field]);
+    if (missingFields.length > 0) {
+      error(`Please fill in required fields: ${missingFields.join(", ")}`);
+      return;
+    }
 
-  if (missingFields.length > 0) {
-    error(`Please fill in required fields: ${missingFields.join(", ")}`);
-    return;
-  }
+    setLoading(true);
 
-  setLoading(true);
+    try {
+      // Send the exact shape your backend expects
+      const payload = {
+        loan_data: {
+          DUE_FREQUENCY: formData.DUE_FREQUENCY,
+          NET_RENTAL: Number(formData.NET_RENTAL),
+          NO_OF_RENTAL: Number(formData.NO_OF_RENTAL),
+          FINANCE_AMOUNT: Number(formData.FINANCE_AMOUNT),
+          CUSTOMER_VALUATION: Number(formData.CUSTOMER_VALUATION),
+          EFFECTIVE_RATE: Number(formData.EFFECTIVE_RATE),
+          AGE: Number(formData.AGE),
+          INCOME: Number(formData.INCOME),
+          MARITAL_STATUS: formData.MARITAL_STATUS,
+        },
+        customer_behavior: formData.customer_behavior,
+      };
 
-  try {
-    // Send the exact shape your backend expects
-    const payload = {
-      loan_data: {
-        DUE_FREQUENCY: formData.DUE_FREQUENCY,
-        NET_RENTAL: Number(formData.NET_RENTAL),
-        NO_OF_RENTAL: Number(formData.NO_OF_RENTAL),
-        FINANCE_AMOUNT: Number(formData.FINANCE_AMOUNT),
-        CUSTOMER_VALUATION: Number(formData.CUSTOMER_VALUATION),
-        EFFECTIVE_RATE: Number(formData.EFFECTIVE_RATE),
-        AGE: Number(formData.AGE),
-        INCOME: Number(formData.INCOME),
-        MARITAL_STATUS: formData.MARITAL_STATUS
-      },
-      customer_behavior: formData.customer_behavior
-    };
+      const result = await dataService.makePrediction(payload);
 
-    const result = await dataService.makePrediction(payload);
+      setPrediction({
+        category: result.llm_result.risk_category,
+        confidence: result.llm_result.confidence,
+        recommendation: result.llm_result.recommendation,
+        factors: result.llm_result.factors,
+        riskScore: result.ml_result.probability_of_default,
+      });
 
-    setPrediction({
-      category: result.llm_result.risk_category,
-      confidence: result.llm_result.confidence,
-      recommendation: result.llm_result.recommendation,
-      factors: result.llm_result.factors,
-      riskScore: result.ml_result.probability_of_default
-    });
-
-    success("Prediction completed successfully!");
-  } catch (err) {
-    console.error(err);
-    error(err.message || "Prediction failed. Please try again.");
-  } finally {
-    setLoading(false);
-  }
-};
-
-
-
-  
+      success("Prediction completed successfully!");
+    } catch (err) {
+      console.error(err);
+      error(err.message || "Prediction failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSavePrediction = async () => {
     if (!prediction) {
-      error('No prediction to save');
+      error("No prediction to save");
+      return;
+    }
+
+    if (!formData.NAME || !formData.MOBILE) {
+      error("Please enter Name and Mobile before saving.");
       return;
     }
 
     setSaving(true);
-    
     try {
-      await dataService.savePrediction({ formData, prediction });
-      success('Prediction saved successfully!');
+      const savePayload = {
+        name: formData.NAME,
+        mobile: formData.MOBILE,
+        district: formData.DISTRICT,
+        prediction: {
+          category: prediction.category,
+          riskScore: prediction.riskScore,
+          confidence: prediction.confidence,
+          recommendation: prediction.recommendation,
+          factors: prediction.factors,
+        },
+        inputData: {
+          DUE_FREQUENCY: formData.DUE_FREQUENCY,
+          NET_RENTAL: formData.NET_RENTAL,
+          NO_OF_RENTAL: formData.NO_OF_RENTAL,
+          AGE: formData.AGE,
+          MARITAL_STATUS: formData.MARITAL_STATUS,
+          INCOME: formData.INCOME,
+          FINANCE_AMOUNT: formData.FINANCE_AMOUNT,
+          CUSTOMER_VALUATION: formData.CUSTOMER_VALUATION,
+          EFFECTIVE_RATE: formData.EFFECTIVE_RATE,
+          customer_behavior: formData.customer_behavior,
+        },
+      };
+
+      const result = await dataService.savePrediction(savePayload);
+      success(`Prediction saved! ID: ${result.predictionId}`);
+
+      // Clear form and prediction after saving
+      setFormData({
+        DUE_FREQUENCY: "",
+        NET_RENTAL: "",
+        NO_OF_RENTAL: "",
+        NAME: "",
+        MOBILE: "",
+        DISTRICT: "",
+        AGE: "",
+        MARITAL_STATUS: "",
+        INCOME: "",
+        FINANCE_AMOUNT: "",
+        CUSTOMER_VALUATION: "",
+        EFFECTIVE_RATE: "",
+        customer_behavior: "",
+      });
+      setPrediction(null);
     } catch (err) {
-      error('Failed to save prediction');
+      error(err.message || "Failed to save prediction");
     } finally {
       setSaving(false);
     }
@@ -153,88 +203,161 @@ const handlePredict = async () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Risk Prediction</h1>
-        <p className="text-gray-600">Enter customer and contract details to generate risk assessment</p>
+        <p className="text-gray-600">
+          Enter customer and contract details to generate risk assessment
+        </p>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Prediction Form */}
         <div className="space-y-6 lg:col-span-2">
           <Card title="Prediction Form">
-            
             {/* Contract Information */}
             <div className="space-y-4">
-              <SectionHeader title="Contract Information" section="contract" count={11} />
-              
+              <SectionHeader
+                title="Contract Information"
+                section="contract"
+                count={11}
+              />
+
               {expandedSections.contract && (
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                 
                   <Select
                     label="Due Frequency"
                     value={formData.DUE_FREQUENCY}
-                    onChange={(e) => handleInputChange('DUE_FREQUENCY', e.target.value)}
-                    options={['Monthly', 'Quarterly', 'Semi-Annual', 'Annual']}
+                    onChange={(e) =>
+                      handleInputChange("DUE_FREQUENCY", e.target.value)
+                    }
+                    options={["Monthly", "Quarterly", "Semi-Annual", "Annual"]}
                   />
                   <Input
                     label="Net Rental"
                     type="number"
                     value={formData.NET_RENTAL}
-                    onChange={(e) => handleInputChange('NET_RENTAL', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("NET_RENTAL", e.target.value)
+                    }
                     placeholder="0.00"
                   />
                   <Input
                     label="Number of Rentals"
                     type="number"
                     value={formData.NO_OF_RENTAL}
-                    onChange={(e) => handleInputChange('NO_OF_RENTAL', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("NO_OF_RENTAL", e.target.value)
+                    }
                   />
-                
                 </div>
               )}
             </div>
 
-
             {/* Customer Information */}
             <div className="space-y-4">
-              <SectionHeader title="Customer Information" section="customer" count={8} />
-              
+              <SectionHeader
+                title="Customer Information"
+                section="customer"
+                count={8}
+              />
+
               {expandedSections.customer && (
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                 
+                  <Input
+                    label="Name"
+                    type="text"
+                    value={formData.NAME}
+                    onChange={(e) => handleInputChange("NAME", e.target.value)}
+                    placeholder="Enter full name"
+                  />
+
+                  <Input
+                    label="Mobile"
+                    type="tel"
+                    value={formData.MOBILE}
+                    onChange={(e) =>
+                      handleInputChange("MOBILE", e.target.value)
+                    }
+                    placeholder="07XXXXXXXX"
+                  />
+
+                  <Select
+                    label="District"
+                    value={formData.DISTRICT}
+                    onChange={(e) =>
+                      handleInputChange("DISTRICT", e.target.value)
+                    }
+                    options={[
+                      "Colombo",
+                      "Gampaha",
+                      "Kalutara",
+                      "Kandy",
+                      "Matale",
+                      "Nuwara Eliya",
+                      "Galle",
+                      "Matara",
+                      "Hambantota",
+                      "Jaffna",
+                      "Kilinochchi",
+                      "Mannar",
+                      "Mullaitivu",
+                      "Vavuniya",
+                      "Batticaloa",
+                      "Ampara",
+                      "Trincomalee",
+                      "Kurunegala",
+                      "Puttalam",
+                      "Anuradhapura",
+                      "Polonnaruwa",
+                      "Badulla",
+                      "Monaragala",
+                      "Ratnapura",
+                      "Kegalle",
+                    ]}
+                  />
+
                   <Input
                     label="Age"
                     type="number"
                     value={formData.AGE}
-                    onChange={(e) => handleInputChange('AGE', e.target.value)}
+                    onChange={(e) => handleInputChange("AGE", e.target.value)}
                   />
                   <Select
                     label="Marital Status"
                     value={formData.MARITAL_STATUS}
-                    onChange={(e) => handleInputChange('MARITAL_STATUS', e.target.value)}
-                    options={['Single', 'Married', 'Divorced', 'Widowed']}
+                    onChange={(e) =>
+                      handleInputChange("MARITAL_STATUS", e.target.value)
+                    }
+                    options={["Single", "Married", "Divorced", "Widowed"]}
                   />
                   <Input
                     label="Income"
                     type="number"
                     value={formData.INCOME}
-                    onChange={(e) => handleInputChange('INCOME', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("INCOME", e.target.value)
+                    }
                     placeholder="0.00"
                   />
-                 
                 </div>
               )}
             </div>
 
             {/* Financial Information */}
             <div className="space-y-4">
-              <SectionHeader title="Financial Information" section="financial" count={3} />
-              
+              <SectionHeader
+                title="Financial Information"
+                section="financial"
+                count={3}
+              />
+
               {expandedSections.financial && (
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <Input
                     label="Finance Amount"
                     type="number"
                     value={formData.FINANCE_AMOUNT}
-                    onChange={(e) => handleInputChange('FINANCE_AMOUNT', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("FINANCE_AMOUNT", e.target.value)
+                    }
                     placeholder="0.00"
                     required
                   />
@@ -242,7 +365,9 @@ const handlePredict = async () => {
                     label="Customer Valuation"
                     type="number"
                     value={formData.CUSTOMER_VALUATION}
-                    onChange={(e) => handleInputChange('CUSTOMER_VALUATION', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("CUSTOMER_VALUATION", e.target.value)
+                    }
                     placeholder="0.00"
                   />
                   <Input
@@ -250,7 +375,9 @@ const handlePredict = async () => {
                     type="number"
                     step="0.01"
                     value={formData.EFFECTIVE_RATE}
-                    onChange={(e) => handleInputChange('EFFECTIVE_RATE', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("EFFECTIVE_RATE", e.target.value)
+                    }
                     placeholder="0.00"
                   />
                 </div>
@@ -259,8 +386,12 @@ const handlePredict = async () => {
 
             {/* LLM Prompt */}
             <div className="space-y-4">
-              <SectionHeader title="LLM Analysis Prompt" section="llm" count={1} />
-              
+              <SectionHeader
+                title="Customer Behavior"
+                section="llm"
+                count={1}
+              />
+
               {expandedSections.llm && (
                 <div className="space-y-4">
                   <div>
@@ -269,7 +400,9 @@ const handlePredict = async () => {
                     </label>
                     <textarea
                       value={formData.customer_behavior}
-                      onChange={(e) => handleInputChange('customer_behavior', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("customer_behavior", e.target.value)
+                      }
                       placeholder="Enter specific instructions for the AI analysis..."
                       rows={4}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent"
@@ -289,14 +422,15 @@ const handlePredict = async () => {
               >
                 Generate Prediction
               </Button>
-              
+
               <Button
                 variant="secondary"
                 onClick={handleSavePrediction}
                 loading={saving}
                 disabled={saving || !prediction}
+               
               >
-                Save Prediction
+                New Prediction
               </Button>
             </div>
           </Card>
@@ -308,26 +442,36 @@ const handlePredict = async () => {
             {prediction ? (
               <div className="space-y-4">
                 <div className="text-center">
-                  <div className={`
+                  <div
+                    className={`
                     inline-flex items-center px-4 py-2 rounded-full text-sm font-medium
-                    ${prediction.category === 'High' ? 'bg-red-100 text-red-800' :
-                      prediction.category === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-green-100 text-green-800'}
-                  `}>
+                    ${
+                      prediction.category === "High"
+                        ? "bg-red-100 text-red-800"
+                        : prediction.category === "Medium"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-green-100 text-green-800"
+                    }
+                  `}
+                  >
                     {prediction.category}
                   </div>
                 </div>
-                
+
                 <div className="space-y-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Risk Score</label>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Risk Score
+                    </label>
                     <div className="mt-1">
                       <div className="h-2 bg-gray-200 rounded-full">
-                        <div 
+                        <div
                           className={`h-2 rounded-full ${
-                            prediction.riskScore > 0.7 ? 'bg-red-500' :
-                            prediction.riskScore > 0.4 ? 'bg-yellow-500' :
-                            'bg-green-500'
+                            prediction.riskScore > 0.7
+                              ? "bg-red-500"
+                              : prediction.riskScore > 0.4
+                              ? "bg-yellow-500"
+                              : "bg-green-500"
                           }`}
                           style={{ width: `${prediction.riskScore * 100}%` }}
                         />
@@ -339,21 +483,27 @@ const handlePredict = async () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Confidence</label>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Confidence
+                    </label>
                     <span className="text-lg font-semibold text-gray-900">
                       {(prediction.confidence * 100).toFixed(1)}%
                     </span>
                   </div>
 
                   <div>
-                    <label className="block mb-2 text-sm font-medium text-gray-700">Recommendation</label>
+                    <label className="block mb-2 text-sm font-medium text-gray-700">
+                      Recommendation
+                    </label>
                     <p className="p-3 text-sm text-gray-600 rounded-lg bg-gray-50">
                       {prediction.recommendation}
                     </p>
                   </div>
 
                   <div>
-                    <label className="block mb-2 text-sm font-medium text-gray-700">Risk Factors</label>
+                    <label className="block mb-2 text-sm font-medium text-gray-700">
+                      Risk Factors
+                    </label>
                     <ul className="space-y-1 text-sm text-gray-600">
                       {prediction.factors.map((factor, index) => (
                         <li key={index} className="flex items-center">
@@ -370,7 +520,9 @@ const handlePredict = async () => {
                 <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full">
                   <span className="text-2xl">🎯</span>
                 </div>
-                <p className="text-gray-500">Fill the form and click "Generate Prediction" to see results</p>
+                <p className="text-gray-500">
+                  Fill the form and click "Generate Prediction" to see results
+                </p>
               </div>
             )}
           </Card>

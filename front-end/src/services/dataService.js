@@ -2,7 +2,6 @@
 
 const API_BASE_URL = import.meta.env.VITE_BASE_URL;
 
-
 export const dataService = {
    async uploadFile(file) {
   // Prepare FormData
@@ -43,18 +42,22 @@ export const dataService = {
   },
 
 
-
-
-  // POST /api/predictions/save
+  
+ // POST /api/predictions/save
   async savePrediction(predictionData) {
-    // TODO: Replace with actual API call
-    console.log('API Stub - Save prediction:', predictionData);
-    
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    return {
-      success: true,
-      predictionId: 'pred-' + Date.now()
-    };
-  }
+    const response = await fetch(`${API_BASE_URL}/ml/save-prediction`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: 'include',
+      body: JSON.stringify(predictionData),
+    });
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(errData.message || "Saving prediction failed");
+    }
+
+    return response.json(); // { success: true, predictionId: "..."}
+  },
+
 };

@@ -1,5 +1,4 @@
-// Report Service - API Stubs
-// TODO: Replace with actual API endpoints
+const API_BASE_URL = import.meta.env.VITE_BASE_URL;
 
 export const reportService = {
   // POST /api/reports/generate
@@ -26,30 +25,18 @@ export const reportService = {
   },
 
   // GET /api/history
-  async getHistory() {
-    // TODO: Replace with actual API call
-    console.log('API Stub - Get history');
-    
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    return {
-      success: true,
-      data: [
-        {
-          id: '1',
-          timestamp: new Date().toISOString(),
-          operation: 'Prediction',
-          summary: 'Risk assessment for contract CT001',
-          status: 'Completed'
-        },
-        {
-          id: '2',
-          timestamp: new Date(Date.now() - 86400000).toISOString(),
-          operation: 'Upload',
-          summary: 'Customer data upload (1000 records)',
-          status: 'Completed'
-        }
-      ]
-    };
-  }
+   async getHistory() {
+    const response = await fetch(`${API_BASE_URL}/ml/all-predictions`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      //credentials: "include", // keep cookies/session if backend uses them
+    });
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(errData.message || "Failed to fetch history");
+    }
+
+    return response.json(); // backend returns array of PredictionResultDTO
+  },
 };

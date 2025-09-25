@@ -20,9 +20,12 @@ def ask_llm(ml_result: dict, client_behavior: str) -> dict:
     {{
       "risk_category": "High | Medium | Low",
       "confidence": 0.0-1.0,
-      "recommendation": "Detailed recommendation text",
+      "recommendation": "Detailed recommendation text (MAX 500 characters)",
       "factors": ["factor1", "factor2", ...]
     }}
+
+    Important: Ensure that the 'recommendation' field does not exceed 500 characters.
+    
     """
 
     response = model.generate_content(prompt)
