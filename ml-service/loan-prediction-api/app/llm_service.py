@@ -6,8 +6,8 @@ from app.config import GEMINI_API_KEY
 
 def ask_llm(ml_result: dict, client_behavior: str) -> dict:
     genai.configure(api_key=GEMINI_API_KEY)
-    model = genai.GenerativeModel("gemini-1.5-flash")
-    #model = genai.GenerativeModel("gemini-pro")
+    # model = genai.GenerativeModel("gemini-1.5-flash")
+    model = genai.GenerativeModel("models/gemini-flash-latest")
 
     prompt = f"""
     You are a financial risk analyst. Combine the ML model result and client behavior

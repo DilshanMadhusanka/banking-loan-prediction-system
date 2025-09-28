@@ -81,15 +81,15 @@ function Report() {
         <p className="text-gray-600">Generate comprehensive reports on risk assessments and predictions</p>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Report Filters */}
         <div className="lg:col-span-2">
           <Card title="Report Configuration">
             <div className="space-y-6">
               {/* Date Range */}
               <div>
-                <h4 className="mb-3 font-medium text-gray-900">Date Range</h4>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <h4 className="font-medium text-gray-900 mb-3">Date Range</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Input
                     label="From Date"
                     type="date"
@@ -109,8 +109,8 @@ function Report() {
 
               {/* Filters */}
               <div>
-                <h4 className="mb-3 font-medium text-gray-900">Filters</h4>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <h4 className="font-medium text-gray-900 mb-3">Filters</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Select
                     label="Risk Category"
                     value={filters.riskCategory}
@@ -187,16 +187,16 @@ function Report() {
             {report ? (
               <div className="space-y-4">
                 <div className="text-center">
-                  <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-accent bg-opacity-10">
+                  <div className="w-16 h-16 bg-accent bg-opacity-10 rounded-full flex items-center justify-center mx-auto mb-4">
                     <FileText className="w-8 h-8 text-accent" />
                   </div>
                   <h4 className="font-semibold text-gray-900">Report Generated</h4>
-                  <p className="mt-1 text-sm text-gray-600">ID: {report.reportId}</p>
+                  <p className="text-sm text-gray-600 mt-1">ID: {report.reportId}</p>
                 </div>
 
                 {/* Report Summary */}
-                <div className="p-4 rounded-lg bg-gray-50">
-                  <h5 className="mb-3 font-medium text-gray-900">Summary</h5>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h5 className="font-medium text-gray-900 mb-3">Summary</h5>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Total Records:</span>
@@ -249,11 +249,11 @@ function Report() {
                 </div>
               </div>
             ) : (
-              <div className="py-12 text-center">
-                <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full">
+              <div className="text-center py-12">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <FileText className="w-8 h-8 text-gray-400" />
                 </div>
-                <p className="text-sm text-gray-500">Configure filters and generate report to see preview</p>
+                <p className="text-gray-500 text-sm">Configure filters and generate report to see preview</p>
               </div>
             )}
           </Card>
@@ -262,21 +262,21 @@ function Report() {
 
       {/* Report Types Info */}
       <Card title="Report Types">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <div className="p-4 rounded-lg bg-gray-50">
-            <h5 className="mb-2 font-medium text-gray-900">Summary Report</h5>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="p-4 bg-gray-50 rounded-lg">
+            <h5 className="font-medium text-gray-900 mb-2">Summary Report</h5>
             <p className="text-sm text-gray-600">High-level overview of risk distribution and key metrics</p>
           </div>
-          <div className="p-4 rounded-lg bg-gray-50">
-            <h5 className="mb-2 font-medium text-gray-900">Detailed Report</h5>
+          <div className="p-4 bg-gray-50 rounded-lg">
+            <h5 className="font-medium text-gray-900 mb-2">Detailed Report</h5>
             <p className="text-sm text-gray-600">Comprehensive breakdown of all predictions and assessments</p>
           </div>
-          <div className="p-4 rounded-lg bg-gray-50">
-            <h5 className="mb-2 font-medium text-gray-900">Risk Analysis</h5>
+          <div className="p-4 bg-gray-50 rounded-lg">
+            <h5 className="font-medium text-gray-900 mb-2">Risk Analysis</h5>
             <p className="text-sm text-gray-600">In-depth analysis of risk factors and patterns</p>
           </div>
-          <div className="p-4 rounded-lg bg-gray-50">
-            <h5 className="mb-2 font-medium text-gray-900">Performance Report</h5>
+          <div className="p-4 bg-gray-50 rounded-lg">
+            <h5 className="font-medium text-gray-900 mb-2">Performance Report</h5>
             <p className="text-sm text-gray-600">Model accuracy and performance metrics over time</p>
           </div>
         </div>

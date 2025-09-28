@@ -26,7 +26,7 @@ export const reportService = {
 
   // GET /api/history
    async getHistory() {
-    const response = await fetch(`${API_BASE_URL}/ml/all-predictions`, {
+    const response = await fetch(`${API_BASE_URL}/ml/all-prediction`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
       //credentials: "include", // keep cookies/session if backend uses them

@@ -430,7 +430,7 @@ function Predict() {
                 disabled={saving || !prediction}
                
               >
-                New Prediction
+                Save & Clear
               </Button>
             </div>
           </Card>
