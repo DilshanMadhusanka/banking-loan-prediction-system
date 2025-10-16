@@ -217,7 +217,7 @@ function Predict() {
               <SectionHeader
                 title="Contract Information"
                 section="contract"
-                count={11}
+                count={3}
               />
 
               {expandedSections.contract && (
@@ -256,7 +256,7 @@ function Predict() {
               <SectionHeader
                 title="Customer Information"
                 section="customer"
-                count={8}
+                count={6}
               />
 
               {expandedSections.customer && (
@@ -396,7 +396,7 @@ function Predict() {
                 <div className="space-y-4">
                   <div>
                     <label className="block mb-2 text-sm font-medium text-gray-700">
-                      Custom Analysis Prompt
+                      Customer Analysis Prompt
                     </label>
                     <textarea
                       value={formData.customer_behavior}
