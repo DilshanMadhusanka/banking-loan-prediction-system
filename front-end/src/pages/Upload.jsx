@@ -61,7 +61,31 @@ function Upload() {
     }
   };
 
-  const handleUpload = async () => {
+//   const handleUpload = async () => {
+//   if (!file) {
+//     error('Please select a file first');
+//     return;
+//   }
+
+//   setUploading(true);
+
+//   try {
+//     // Call your dataService API
+//     const result = await dataService.uploadFile(file);
+
+//     // Set preview and show success toast
+//     setPreview(result);
+//     success(`File uploaded successfully! ${result.rowCount} records processed.`);
+//     setUploadLocked(true); 
+//   } catch (err) {
+//     console.error(err);
+//     error(err.message || 'Upload failed. Please try again.');
+//   } finally {
+//     setUploading(false);
+//   }
+// };
+
+const handleUpload = async () => {
   if (!file) {
     error('Please select a file first');
     return;
@@ -70,13 +94,17 @@ function Upload() {
   setUploading(true);
 
   try {
-    // Call your dataService API
     const result = await dataService.uploadFile(file);
 
-    // Set preview and show success toast
-    setPreview(result);
-    success(`File uploaded successfully! ${result.rowCount} records processed.`);
-    setUploadLocked(true); 
+    // Show success toast only
+    success(`File uploaded successfully! ${result.rowCount || ''} records processed.`);
+
+    // Optionally lock upload so user can't upload again
+    setUploadLocked(true);
+
+    // Keep preview on the page (optional)
+    //setPreview(result);
+
   } catch (err) {
     console.error(err);
     error(err.message || 'Upload failed. Please try again.');
@@ -84,6 +112,7 @@ function Upload() {
     setUploading(false);
   }
 };
+
 
 
   const handleCancel = () => {
@@ -164,17 +193,12 @@ function Upload() {
       >
         Cancel
       </Button>
-       <Button
-           variant="danger" >
-            Remove Uploaded Data !
-       </Button>
-      
     </div>
   )}
 
   {uploadLocked && ( // show lock message
     <p className="mt-4 text-sm text-center text-red-500">
-      🔒 Upload locked. You cannot upload another file.
+      🔒 Cannot upload file until training is finished.
     </p>
   )}
 </Card>

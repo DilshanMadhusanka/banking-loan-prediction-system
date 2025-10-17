@@ -1,0 +1,49 @@
+[2025-10-17T12:16:09.373+0000] {local_task_job_runner.py:120} INFO - ::group::Pre task execution logs
+[2025-10-17T12:16:09.402+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: data_preprocessing_v9.preprocess_uploaded_file manual__2025-10-17T12:15:59.314606+00:00 [queued]>
+[2025-10-17T12:16:09.411+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: data_preprocessing_v9.preprocess_uploaded_file manual__2025-10-17T12:15:59.314606+00:00 [queued]>
+[2025-10-17T12:16:09.411+0000] {taskinstance.py:2306} INFO - Starting attempt 1 of 1
+[2025-10-17T12:16:09.456+0000] {taskinstance.py:2330} INFO - Executing <Task(PythonOperator): preprocess_uploaded_file> on 2025-10-17 12:15:59.314606+00:00
+[2025-10-17T12:16:09.467+0000] {standard_task_runner.py:63} INFO - Started process 342 to run task
+[2025-10-17T12:16:09.471+0000] {standard_task_runner.py:90} INFO - Running: ['***', 'tasks', 'run', 'data_preprocessing_v9', 'preprocess_uploaded_file', 'manual__2025-10-17T12:15:59.314606+00:00', '--job-id', '10', '--raw', '--subdir', 'DAGS_FOLDER/data_preprocessing_modal_retrain.py', '--cfg-path', '/tmp/tmp_eh17jjh']
+[2025-10-17T12:16:09.475+0000] {standard_task_runner.py:91} INFO - Job 10: Subtask preprocess_uploaded_file
+[2025-10-17T12:16:09.591+0000] {task_command.py:426} INFO - Running <TaskInstance: data_preprocessing_v9.preprocess_uploaded_file manual__2025-10-17T12:15:59.314606+00:00 [running]> on host e4a1b854a6e9
+[2025-10-17T12:16:09.782+0000] {taskinstance.py:2648} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='***' AIRFLOW_CTX_DAG_ID='data_preprocessing_v9' AIRFLOW_CTX_TASK_ID='preprocess_uploaded_file' AIRFLOW_CTX_EXECUTION_DATE='2025-10-17T12:15:59.314606+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2025-10-17T12:15:59.314606+00:00'
+[2025-10-17T12:16:09.783+0000] {taskinstance.py:430} INFO - ::endgroup::
+[2025-10-17T12:16:09.804+0000] {logging_mixin.py:188} INFO - Processing latest file: Data Sample.xlsx
+[2025-10-17T12:16:23.691+0000] {logging_mixin.py:188} INFO - Dataset loaded successfully with shape: (100000, 10)
+[2025-10-17T12:16:23.694+0000] {logging_mixin.py:188} INFO - Columns: ['CONTRACT_STATUS', 'DUE_FREQUENCY', 'NET_RENTAL', 'NO_OF_RENTAL', 'FINANCE_AMOUNT', 'CUSTOMER_VALUATION', 'EFFECTIVE_RATE', 'AGE', 'MARITAL_STATUS', 'INCOME']
+[2025-10-17T12:16:23.822+0000] {logging_mixin.py:188} INFO - After cleaning: (99039, 10)
+[2025-10-17T12:16:23.823+0000] {logging_mixin.py:188} INFO - Numeric columns: ['NET_RENTAL', 'NO_OF_RENTAL', 'FINANCE_AMOUNT', 'CUSTOMER_VALUATION', 'EFFECTIVE_RATE', 'AGE', 'INCOME']
+[2025-10-17T12:16:23.824+0000] {logging_mixin.py:188} INFO - Categorical columns: ['CONTRACT_STATUS', 'DUE_FREQUENCY', 'MARITAL_STATUS']
+[2025-10-17T12:16:26.405+0000] {logging_mixin.py:188} INFO -                     Description             Value
+0                    Session id               123
+1                        Target   CONTRACT_STATUS
+2                   Target type        Regression
+3           Original data shape       (99039, 10)
+4        Transformed data shape       (99039, 15)
+5   Transformed train set shape       (69327, 15)
+6    Transformed test set shape       (29712, 15)
+7              Numeric features                 7
+8          Categorical features                 2
+9                    Preprocess              True
+10              Imputation type            simple
+11           Numeric imputation              mean
+12       Categorical imputation              mode
+13     Maximum one-hot encoding                25
+14              Encoding method              None
+15                    Normalize              True
+16             Normalize method            zscore
+17               Fold Generator             KFold
+18                  Fold Number                10
+19                     CPU Jobs                -1
+20                      Use GPU             False
+21               Log Experiment             False
+22              Experiment Name  reg-default-name
+23                          USI              66d1
+[2025-10-17T12:16:45.852+0000] {logging_mixin.py:188} INFO - Saved cleaned file to /opt/***/shared_data/cleaned_data/cleaned_Data Sample.xlsx
+[2025-10-17T12:16:45.852+0000] {python.py:237} INFO - Done. Returned value was: None
+[2025-10-17T12:16:45.853+0000] {taskinstance.py:441} INFO - ::group::Post task execution logs
+[2025-10-17T12:16:45.866+0000] {taskinstance.py:1206} INFO - Marking task as SUCCESS. dag_id=data_preprocessing_v9, task_id=preprocess_uploaded_file, run_id=manual__2025-10-17T12:15:59.314606+00:00, execution_date=20251017T121559, start_date=20251017T121609, end_date=20251017T121645
+[2025-10-17T12:16:46.018+0000] {local_task_job_runner.py:240} INFO - Task exited with return code 0
+[2025-10-17T12:16:46.049+0000] {taskinstance.py:3498} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2025-10-17T12:16:46.085+0000] {local_task_job_runner.py:222} INFO - ::endgroup::

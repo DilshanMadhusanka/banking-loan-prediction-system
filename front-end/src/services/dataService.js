@@ -9,9 +9,9 @@ export const dataService = {
   formData.append('file', file);
 
   // Send request with credentials: 'include' to automatically send cookies
-  const response = await fetch(`${API_BASE_URL}/data/upload`, {
+  const response = await fetch(`${API_BASE_URL}/files/uploads`, {
     method: 'POST',
-    //credentials: 'include', // important: send cookie automatically
+   // credentials: 'include', // important: send cookie automatically
     body: formData
   });
 

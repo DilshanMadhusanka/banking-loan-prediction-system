@@ -45,7 +45,7 @@ public class SecurityConfig {
                                "/login",
                                "/api/v1/auth/login",
                                "/api/v1/auth/register",
-                               "/api/v1/data/upload",
+                               "/api/v1/files/uploads",
                                "/api/v1/ml/predict",
                         "/api/v1/ml/all-prediction").permitAll()
                         .anyRequest().authenticated()

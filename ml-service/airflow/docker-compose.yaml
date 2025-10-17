@@ -2,21 +2,23 @@ version: '3.8'
 
 x-airflow-common:
   &airflow-common
-  build: .       # Use your Dockerfile here
+  build: .   # Build from airflow/Dockerfile
   environment:
     &airflow-common-env
     AIRFLOW__CORE__EXECUTOR: CeleryExecutor
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
-    AIRFLOW__CORE__LOAD_EXAMPLES: 'true'
+    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
     AIRFLOW__CELERY__BROKER_URL: redis://:@redis:6379/0
     AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres/airflow
   volumes:
-    - ./airflow/dags:/opt/airflow/dags
-    - ./airflow/logs:/opt/airflow/logs
-    - ./airflow/plugins:/opt/airflow/plugins
-    - ./shared_data:/opt/airflow/shared_data   # Shared folder with FastAPI
-  user: "${AIRFLOW_UID:-50000}:0"
+    - ./dags:/opt/airflow/dags
+    - ./logs:/opt/airflow/logs
+    - ./plugins:/opt/airflow/plugins
+    # Mount shared_data (go up one level)
+    - ../shared_data:/opt/airflow/shared_data
+ # user: "${AIRFLOW_UID:-50000}:0"
+  user: "0:0"  # Run Airflow as root inside container
   depends_on:
     &airflow-common-depends-on
     redis:
@@ -28,6 +30,7 @@ services:
 
   postgres:
     image: postgres:16
+    container_name: airflow_postgres
     environment:
       POSTGRES_USER: airflow
       POSTGRES_PASSWORD: airflow
@@ -43,6 +46,7 @@ services:
 
   redis:
     image: redis:7.2-bookworm
+    container_name: airflow_redis
     expose:
       - 6379
     healthcheck:
@@ -52,34 +56,68 @@ services:
       start_period: 30s
     restart: always
 
+  airflow-init:
+    <<: *airflow-common
+    container_name: airflow_init
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        echo "Initializing Airflow database..."
+        airflow db init
+        echo "Creating admin user..."
+        airflow users create \
+          --username admin \
+          --firstname Admin \
+          --lastname User \
+          --role Admin \
+          --email admin@example.com \
+          --password admin
+        echo "Initialization completed!"
+    user: "0:0"
+    depends_on:
+      <<: *airflow-common-depends-on
+
   airflow-webserver:
     <<: *airflow-common
+    container_name: airflow_webserver
     command: webserver
     ports:
-      - "8080:8080"
+      - "8181:8080"
     restart: always
     depends_on:
+      airflow-init:
+        condition: service_completed_successfully
       <<: *airflow-common-depends-on
 
   airflow-scheduler:
     <<: *airflow-common
+    container_name: airflow_scheduler
     command: scheduler
     restart: always
     depends_on:
+      airflow-init:
+        condition: service_completed_successfully
       <<: *airflow-common-depends-on
 
   airflow-worker:
     <<: *airflow-common
+    container_name: airflow_worker
     command: celery worker
     restart: always
     depends_on:
+      airflow-init:
+        condition: service_completed_successfully
       <<: *airflow-common-depends-on
 
   airflow-triggerer:
     <<: *airflow-common
+    container_name: airflow_triggerer
     command: triggerer
     restart: always
     depends_on:
+      airflow-init:
+        condition: service_completed_successfully
       <<: *airflow-common-depends-on
 
 volumes:
