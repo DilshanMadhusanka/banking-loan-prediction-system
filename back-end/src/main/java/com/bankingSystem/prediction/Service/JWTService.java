@@ -3,12 +3,11 @@ package com.bankingSystem.prediction.Service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.util.Date;
-import java.util.Map;
 
 @Service
 public class JWTService {
@@ -25,11 +24,10 @@ public class JWTService {
         }
     }
 
-
     // create JWT
-    public String getJWTToken(String username, Map<String,Object> claims) {
+    public String getJWTToken(String username) {
         return Jwts.builder()
-                .claims(claims)
+                //.claims(claims)
                 .subject(username)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
@@ -39,18 +37,20 @@ public class JWTService {
 
     // extract username
     public String getUserName(String token) {
-
-        Claims data = getTokenData(token);
-        if(data == null) return null;
-        return data.getSubject();
-
+        return getTokenData(token).getSubject();
     }
 
-    public Object getFieldFromToken(String token, String key){
-        Claims data = getTokenData(token);
-        if(data == null) return null;
-        return data.get(key);
+    // Validate token: checks if username matches and token is not expired
+    public boolean validateToken(String token, UserDetails userDetails) {
+        final String username = getUserName(token);
+        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
+
+    // Check if token is expired
+    private boolean isTokenExpired(String token) {
+        return getTokenData(token).getExpiration().before(new Date());
+    }
+
 
     public Claims getTokenData(String token){
         try{

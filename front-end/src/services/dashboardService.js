@@ -3,7 +3,7 @@ const API_BASE_URL = import.meta.env.VITE_BASE_URL;
 
 export const dashboardService = {
   async getAllUsers() {
-    const response = await fetch(`${API_BASE_URL}/user/all-user`, {
+    const response = await fetch(`${API_BASE_URL}/auth/all-user`, {
       method: 'GET',
       credentials: 'include', // sends HttpOnly cookie
     });

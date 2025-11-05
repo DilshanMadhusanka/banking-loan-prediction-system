@@ -1,8 +1,7 @@
 package com.bankingSystem.prediction.Filter;
 
-import com.bankingSystem.prediction.Entity.UserEntity;
-import com.bankingSystem.prediction.Repository.UserRepository;
 import com.bankingSystem.prediction.Service.JWTService;
+import com.bankingSystem.prediction.Service.MyUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -21,11 +20,11 @@ import java.io.IOException;
 public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTService jwtService;
-    private final UserRepository userRepository;
+    private final MyUserDetailsService userDetailsService;
 
-    public JWTFilter(JWTService jwtService, UserRepository userRepository) {
+    public JWTFilter(JWTService jwtService, MyUserDetailsService userDetailsService) {
         this.jwtService = jwtService;
-        this.userRepository = userRepository;
+        this.userDetailsService = userDetailsService;
     }
 
     @Override
@@ -34,14 +33,16 @@ public class JWTFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
 
         String token = null;
+        String username = null;
 
-        // 1️⃣ Check Authorization header first
+
+        //  Check Authorization header first
         String authorization = request.getHeader("Authorization");
         if (authorization != null && authorization.startsWith("Bearer ")) {
             token = authorization.split(" ")[1];
         }
 
-        // 2️⃣ If no header, check cookies
+        // If no header, check cookies
         if (token == null) {
             Cookie[] cookies = request.getCookies();
             if (cookies != null) {
@@ -54,41 +55,24 @@ public class JWTFilter extends OncePerRequestFilter {
             }
         }
 
-        // 3️⃣ If token still null, continue the filter chain
-        if (token == null) {
-            filterChain.doFilter(request, response);
-            return;
+        // Extract username from token
+        if( token != null){
+            username = jwtService.getUserName(token);
         }
 
-        // 4️⃣ Extract username from token
-        String username = jwtService.getUserName(token);
-        if (username == null) {
-            filterChain.doFilter(request, response);
-            return;
+        // Set authentication in security context if not already set
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+            if (jwtService.validateToken(token, userDetails)) {
+                UsernamePasswordAuthenticationToken authToken =
+                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
         }
 
-        // 5️⃣ Load user from database
-        UserEntity userData = userRepository.findByUsername(username).orElse(null);
-        if (userData == null) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        // 6️⃣ Set authentication in security context if not already set
-        if (SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
-                    .username(userData.getUsername())
-                    .password(userData.getPassword())
-                    .build();
-
-            UsernamePasswordAuthenticationToken authToken =
-                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authToken);
-        }
-
-
-        // 7️⃣ Continue filter chain
+        // Continue filter chain
         filterChain.doFilter(request, response);
     }
 

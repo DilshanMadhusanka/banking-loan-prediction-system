@@ -42,7 +42,7 @@ public class SecurityConfig {
                 .cors(cors -> {}) // enable CORS
                 .authorizeHttpRequests(auth -> auth
                        .requestMatchers(
-                               "/login",
+
                                "/api/v1/auth/login",
                                "/api/v1/auth/register",
                                "/api/v1/files/uploads",
@@ -90,7 +90,7 @@ public class SecurityConfig {
         return configuration.getAuthenticationManager();
     }
 
-    // ✅ CORS filter bean
+    // CORS filter bean
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
@@ -103,6 +103,5 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }
-
 
 }

@@ -22,7 +22,7 @@ export const authService = {
     const data = await response.json();
 
     // Fetch user profile from backend
-    const userResponse = await fetch(`${API_BASE_URL}/user/profile`, {
+    const userResponse = await fetch(`${API_BASE_URL}/auth/profile`, {
       method: 'GET',
       credentials: 'include' // send cookie automatically
     });
@@ -52,7 +52,7 @@ export const authService = {
 
   // GET /user/profile
   async getProfile() {
-    const response = await fetch(`${API_BASE_URL}/user/profile`, {
+    const response = await fetch(`${API_BASE_URL}/auth/profile`, {
       method: 'GET',
       credentials: 'include'
     });

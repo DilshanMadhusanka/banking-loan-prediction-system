@@ -31,7 +31,7 @@ export const userService = {
   // GET /api/users/profile
   async getUserProfile() {
     try {
-      const response = await fetch(`${API_BASE_URL}/user/profile`, {
+      const response = await fetch(`${API_BASE_URL}/auth/profile`, {
         method: 'GET',
         credentials: 'include', // send cookies automatically
         headers: {
