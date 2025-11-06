@@ -7,6 +7,7 @@ import {
   FileText, 
   History, 
   User,
+  Users,
   X 
 } from 'lucide-react';
 
@@ -17,6 +18,7 @@ const navigationItems = [
   { name: 'Report', href: '/report', icon: FileText },
   { name: 'History', href: '/history', icon: History },
   { name: 'Profile', href: '/profile', icon: User },
+  { name: 'User Management', href: '/UserManagement', icon: Users },
 ];
 
 function Sidebar({ isOpen, onClose }) {
@@ -25,7 +27,7 @@ function Sidebar({ isOpen, onClose }) {
       {/* Mobile overlay */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
+          className="fixed inset-0 z-20 bg-black bg-opacity-50 lg:hidden"
           onClick={onClose}
         />
       )}
@@ -35,17 +37,17 @@ function Sidebar({ isOpen, onClose }) {
         fixed top-16 left-0 z-30 w-64 h-full bg-white border-r border-gray-200 transform transition-transform duration-300 lg:translate-x-0
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
-        <div className="flex items-center justify-between p-4 lg:hidden border-b border-gray-200">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 lg:hidden">
           <span className="font-semibold text-gray-900">Navigation</span>
           <button
             onClick={onClose}
             className="p-1 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-accent"
           >
-            <X className="h-5 w-5 text-gray-600" />
+            <X className="w-5 h-5 text-gray-600" />
           </button>
         </div>
         
-        <nav className="mt-4 px-4">
+        <nav className="px-4 mt-4">
           <ul className="space-y-2">
             {navigationItems.map((item) => (
               <li key={item.name}>
@@ -60,7 +62,7 @@ function Sidebar({ isOpen, onClose }) {
                     }`
                   }
                 >
-                  <item.icon className="mr-3 h-5 w-5" />
+                  <item.icon className="w-5 h-5 mr-3" />
                   {item.name}
                 </NavLink>
               </li>

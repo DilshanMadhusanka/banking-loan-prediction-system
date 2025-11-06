@@ -15,7 +15,7 @@ import java.sql.Timestamp;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "user")
+@Table(name = "users")
 public class UserEntity {
 
     @Id
@@ -26,6 +26,11 @@ public class UserEntity {
     private String username;
     private String email;
     private String password;
+    private String mobile;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "role_id", nullable = false) // foreign key in users table
+    private Role role;
+
     @CreationTimestamp
     private Timestamp createdAt;
     @UpdateTimestamp

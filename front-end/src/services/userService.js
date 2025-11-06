@@ -8,7 +8,9 @@ export const userService = {
       name: userData.name,
       username: userData.username,
       email: userData.email,
-      password: userData.password
+      password: userData.password,
+      roleId: userData.roleId,
+      mobile :userData.mobile
     };
 
     const response = await fetch(`${API_BASE_URL}/auth/register`, {
@@ -20,13 +22,21 @@ export const userService = {
       body: JSON.stringify(payload)
     });
 
-    if (!response.ok) {
-      const errData = await response.json().catch(() => ({}));
-      throw new Error(errData.message || 'Failed to create user');
-    }
+  //   if (!response.ok) {
+  //     const errData = await response.json().catch(() => ({}));
+  //     throw new Error(errData.message || 'Failed to create user');
+  //   }
 
-    return response.json(); // returns created user from backend
-  },
+  //   return response.json(); // returns created user from backend
+  // },
+
+  if (!response.ok) {
+    const errData = await response.json().catch(() => ({}));
+    throw new Error(errData.error || 'Failed to create user'); // <-- use errData.error
+  }
+
+  return response.json(); // returns created user from backend
+},
 
   // GET /api/users/profile
   async getUserProfile() {
@@ -47,11 +57,11 @@ export const userService = {
         success: true,
         user: {
           id: data.username || '1',                 
-          name: data.name || 'John Doe',
-          email: data.email || 'john.doe@bank.com',
-          mobile: '+1234567890',                     
+          name: data.name,
+          email: data.email ,
+          mobile: data.mobile,                     
           profileImage: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150',
-          role: 'Admin',
+          role: data.role,
           department: 'Risk Management',
           joinDate: data.createdAt || '2023-01-15'  
         }
@@ -64,6 +74,34 @@ export const userService = {
         user: null
       };
     }
-  }
+  },
+
+
+  async updateUser(userId, userData) {
+    // Only send fields backend expects
+    const payload = {
+        name: userData.name,
+        email: userData.email,
+        roleId: userData.roleId,
+        mobile: userData.mobile
+    };
+
+    const response = await fetch(`${API_BASE_URL}/users/update-user/${userId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+         credentials: 'include',
+        body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || 'Failed to update user');
+    }
+
+    return response.json();
+}
+
 
 };

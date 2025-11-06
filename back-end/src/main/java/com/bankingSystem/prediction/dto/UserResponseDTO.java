@@ -12,9 +12,11 @@ import java.sql.Timestamp;
 @Builder
 public class UserResponseDTO {
 
+    private String id;
     private String name;
     private String username;
     private String email;
     private Timestamp createdAt;
-
+    private String role;
+    private String mobile;
 }

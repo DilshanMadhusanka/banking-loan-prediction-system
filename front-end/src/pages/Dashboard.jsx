@@ -211,6 +211,7 @@ function Dashboard() {
               <p className="text-lg font-semibold text-gray-900">{user.name}</p>
               <p className="text-sm text-gray-700">Username: {user.username}</p>
               <p className="text-sm text-gray-700">Email: {user.email}</p>
+              <p className="text-sm text-gray-700">Role: {user.role.charAt(0).toUpperCase() + user.role.slice(1).toLowerCase()}</p>
               <p className="mt-1 text-xs text-gray-500">Joined: {new Date(user.createdAt).toLocaleString()}</p>
             </div>
           </div>

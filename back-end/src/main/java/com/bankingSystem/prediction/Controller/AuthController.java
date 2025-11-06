@@ -74,4 +74,6 @@ public class AuthController {
     public ResponseEntity<UserResponseDTO> getCurrentUser() {
         return authService.getCurrentUser();
     }
+
+
 }

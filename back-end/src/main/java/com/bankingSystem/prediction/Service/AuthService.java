@@ -1,6 +1,8 @@
 package com.bankingSystem.prediction.Service;
 
+import com.bankingSystem.prediction.Entity.Role;
 import com.bankingSystem.prediction.Entity.UserEntity;
+import com.bankingSystem.prediction.Repository.RoleRepository;
 import com.bankingSystem.prediction.Repository.UserRepository;
 import com.bankingSystem.prediction.dto.*;
 import org.springframework.http.ResponseEntity;
@@ -20,12 +22,14 @@ public class AuthService {
     private  final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private  final JWTService jwtService;
+    private final RoleRepository roleRepository;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JWTService jwtService) {
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JWTService jwtService, RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+        this.roleRepository = roleRepository;
     }
 
     // login function
@@ -36,7 +40,11 @@ public class AuthService {
                     new UsernamePasswordAuthenticationToken(loginData.getUsername(), loginData.getPassword())
             );
         } catch (Exception e) {
-            return new LoginResponseDTO(null, null, "Invalid username or password", "error");
+            return new LoginResponseDTO(null, null, "Invalid username or password", "error", null);
+//            return LoginResponseDTO.builder()
+//                    .error("Invalid email or password")
+//                    .message("error")
+//                    .build();
         }
         // get user data from DB
         UserEntity user = userRepository.findByUsername(loginData.getUsername())
@@ -47,7 +55,15 @@ public class AuthService {
                 user.getUsername()
                 );
 
-        return new LoginResponseDTO(token, LocalDateTime.now(), null, "Token generated successfully!");
+        // Build the user response
+        return LoginResponseDTO.builder()
+                .token(token)
+                .message("Login successful")
+                .time(LocalDateTime.now())
+                .role(user.getRole().getRoleName())
+                .build();
+
+      //  return new LoginResponseDTO(token, LocalDateTime.now(), null, "Token generated successfully!");
     }
 
     // create user
@@ -63,11 +79,16 @@ public class AuthService {
 
 
     public UserEntity createUser(RegisterRequestDTO userData) {
+        // Fetch the Role entity using roleId or roleName
+        Role role = roleRepository.findById(userData.getRoleId()) // assuming you changed DTO to have roleId
+                .orElseThrow(() -> new RuntimeException("Role not found"));
         UserEntity newUser = UserEntity.builder()
                 .name(userData.getName())
                 .username(userData.getUsername())
                 .email(userData.getEmail())
                 .password(passwordEncoder.encode(userData.getPassword()))
+                .role(role)
+                .mobile(userData.getMobile())
                 .build();
 
         return userRepository.save(newUser);
@@ -97,10 +118,13 @@ public class AuthService {
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
             UserResponseDTO responseDTO = new UserResponseDTO(
+                    user.getId(),
                     user.getName(),
                     user.getUsername(),
                     user.getEmail(),
-                    user.getCreatedAt()
+                    user.getCreatedAt(),
+                    user.getRole().getRoleName(),
+                    user.getMobile()
             );
 
             return ResponseEntity.ok(responseDTO);
@@ -113,11 +137,17 @@ public class AuthService {
         return userRepository.findAll()
                 .stream()
                 .map(user -> new UserResponseDTO(
+                        user.getId(),
                         user.getName(),
                         user.getUsername(),
                         user.getEmail(),
-                        user.getCreatedAt()
+                        user.getCreatedAt(),
+                        user.getRole().getRoleName(),
+                        user.getMobile()
                 ))
                 .collect(Collectors.toList());
     }
+
+
+
 }

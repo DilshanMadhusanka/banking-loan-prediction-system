@@ -21,6 +21,11 @@ export const authService = {
     // The cookie is set automatically; token in response is null
     const data = await response.json();
 
+     // Store only the role
+    localStorage.setItem('role', data.role);
+
+    
+
     // Fetch user profile from backend
     const userResponse = await fetch(`${API_BASE_URL}/auth/profile`, {
       method: 'GET',
